@@ -8,6 +8,7 @@ from .serializers import *
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 # def home(request):
@@ -15,17 +16,18 @@ from rest_framework.permissions import IsAuthenticated
  
 class LoginView(APIView):
     def post(self, request):
-        if UserModel.objects.filter(username=request.data['username']).exists():
-            obj = UserModel(username=request.data['username'], password=request.data['password'])
-            print("obj", obj)
-            if obj:
-                user = UserModel.objects.filter(username=request.data['username']).first()
-                print("user", user)
+        try: 
+            user = UserModel.objects.filter(username=request.data['username']).first()
+            # obj = UserModel.objects.filter(username=request.data['username'], password=request.data['password']).first()
+            if check_password(user.password, request.data['password']):
+                # user = UserModel.objects.filter(username=request.data['username']).first()
+                request.session['student_user'] = user.username
                 serializer = LoginSerializer(user)
                 return Response(serializer.data,status=201)
             else:
                 return Response({'msg': 'Invalid credentials'}, status=404)
-        else:
+        except Exception as e:
+            print('Error', e)
             return Response({'msg':'You are not registered user!'},status=404)
 
 
