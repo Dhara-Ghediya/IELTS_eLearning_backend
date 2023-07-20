@@ -30,17 +30,14 @@ class LoginView(APIView):
             print('Error', e)
             return Response({'msg': 'You are not registered user!'}, status= 404)
 
-
 class Logout(APIView):
     # permission_classes = (IsAuthenticated, )
     def post(self, request):
-        if UserModel.objects.filter(username= request.data['username']).exists():
-            user = UserModel.objects.get(username= request.data['username'])
-            # token = Tokens.objects.get(user=user)
-            # token.delete()
+        if 'student_user' in request.session.keys():
+            request.session.pop('student_user')
             return Response({'msg': 'Successfully Logout'}, status= 200)
         else:
-            return Response({'msg': 'Invalid credentials!'})
+            return Response({'msg': 'Already Logged out!'})
 
 class RegisterView(APIView):
     def post(self, request):
