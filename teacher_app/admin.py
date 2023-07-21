@@ -13,6 +13,10 @@ admin.site.register(TeacherProfile, TeacherProfileAdmin)
 class WriteTestAdmin(admin.ModelAdmin):
     list_display = ['teacher', 'timeStamp', 'question']
 admin.site.register(WritingTests, WriteTestAdmin)
-admin.site.register(ListeningTests)
+
+class ListningTestsAdmin(admin.ModelAdmin):
+    list_display = ['teacher', 'timeStamp', 'question']
+admin.site.register(ListeningTests, ListningTestsAdmin)
+
 admin.site.register(SpeakingTests)
 admin.site.register(ReadingTests)

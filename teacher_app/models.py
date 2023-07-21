@@ -1,4 +1,5 @@
 from django.db import models
+from .validators import *
 from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
 # from rest_framework.authtoken.models import Token
 # from rest_framework import exceptions
@@ -6,6 +7,11 @@ import binascii
 import os
 import datetime
 
+def audiofile_validator(value):
+    file_extension_validator = FileExtensionValidator(ALLOWED_EXTENSIONS)
+    file_extension_validator(value)
+    max_file_size_validator(value)
+    
 # Create your models here.
 class TeacherModel(models.Model):
     username = models.CharField(max_length=100)
@@ -63,34 +69,27 @@ class WritingTests(models.Model):
         self.question['images'].append(img_url)
         self.save()
 
-    # def get_question_content(self):
-    #     return self.question.get('content', '')
-
-    # def get_question_images(self):
-    #     return self.question.get('images', [])
-
 class ListeningTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
-    # que_type = models.CharField(max_length=50, choices=COURSES)
-    question = models.FileField(upload_to='crack_ielts/media/audios/', blank=False)
-    timeStamp = models.DateTimeField(auto_now_add=True)
-    questionMarks = models.IntegerField(default=0)
+    question = models.FileField(upload_to='teacher_app/media/audios/', blank=False, validators=[audiofile_validator])
+    timeStamp = models.DateTimeField(auto_now_add = True)
+    questionMarks = models.IntegerField(default = 0)
 
-    def __str__(self):
-        return self.que_type + ": " + self.question
+    # def __str__(self):
+    #     return self.question
 
 class SpeakingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
     question = models.TextField()
-    timeStamp = models.DateTimeField(auto_now_add=True)
-    questionMarks = models.IntegerField(default=0)
+    timeStamp = models.DateTimeField(auto_now_add = True)
+    questionMarks = models.IntegerField(default = 0)
 
     def __str__(self):
         return self.que_type + ": " + self.question
 
 class ReadingTests(models.Model):
-    teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)

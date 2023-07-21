@@ -50,6 +50,10 @@ class ListeningTestSerializer(serializers.ModelSerializer):
         model = ListeningTests
         fields = "__all__"
 
+    def __init__(self, instance=None, data=..., **kwargs):
+        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+        super().__init__(instance, data, **kwargs)
+
 class SpeakingTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpeakingTests

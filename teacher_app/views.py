@@ -110,3 +110,16 @@ class WritingTestsView(APIView):
             else:
                 return Response(serializer.errors)
         # return Response({'msg': "Question already exists!"}, status=404)
+
+class ListeningTestsView(APIView):
+    def post(self, request):
+        if ListeningTests.objects.filter(question=request.data['question']).exists():
+            return Response({'msg': 'Question already exists!'}, status = 409)
+        else:
+            serializer = ListeningTestSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'msg':'Question has been added Successfully!'}, status=201)
+            else:
+                return Response(serializer.errors)
+        # return Response({'msg': "Question already exists!"}, status=404)
