@@ -32,7 +32,7 @@ class Profile(models.Model):
                                                                          message="Country must be Alphabetic")])
     def __str__(self):
         return self.type_of_user+ ": "+ self.first_name+ " "+ self.last_name
-   
+#add
 # class Tokens(models.Model):
 #     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
 #     key = models.CharField(("Key"), max_length=40, primary_key=True)
