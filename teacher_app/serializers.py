@@ -33,4 +33,29 @@ class TeacherProfileSerializer (serializers.ModelSerializer):
 class TeacherLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherModel
-        fields = ['username', 'password']    
+        fields = ['username', 'password'] 
+
+class WritingTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WritingTests
+        fields = "__all__"
+
+    def __init__(self, instance=None, data=..., **kwargs):
+        data = data.copy()
+        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+        super().__init__(instance, data, **kwargs)
+        
+class ListeningTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListeningTests
+        fields = "__all__"
+
+class SpeakingTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpeakingTests
+        fields = "__all__"
+
+class ReadingTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadingTests
+        fields = "__all__"
