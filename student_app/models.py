@@ -81,3 +81,9 @@ class StudentSpeakingAnswer(models.Model):
     answer = models.AutoField(verbose_name="student Answer") 
     checkedQuestion=models.BooleanField(default=False)
     studentObtainMarks = models.IntegerField(default=0)
+
+
+class Permissions(models.Model):
+    permissionName=models.CharField(verbose_name="permission name")
+class MemberGroup(models.Model):
+    group_name = models.CharField(max_length=100)
