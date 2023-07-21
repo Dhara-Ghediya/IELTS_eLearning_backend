@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
-
+from teacher_app.models import WritingTests,ListeningTests
 # Create your views here.
 # def home(request):
 #     return render(request, 'index.html')
@@ -72,7 +72,6 @@ class RegisterView(APIView):
                     return Response({'msg': reg_errors})
             return Response({'msg': reg_errors})
 
-
 class ProfileView(APIView):
     def post(self, request):
         user = UserModel.objects.filter(username= request.data['user'])
@@ -85,3 +84,18 @@ class ProfileView(APIView):
                 return Response(serializer.errors)
         else:
             return Response ({'msg': 'You are not registered! Please register first.'})
+
+class WritingTestView(APIView):
+    def get(self, request, *args, **kwargs):
+        obj=WritingTests.objects.all().first()
+        print("obj=",obj.teacher)
+        # writingTestsSerializer = WritingTestSerializer(obj)
+        
+        writingTestsSerializer = WritingTestSerializer(instance=obj)
+
+        print(writingTestsSerializer)
+        if writingTestsSerializer.is_valid():
+            print(writingTestsSerializer.data)
+        else:
+            print(writingTestsSerializer.errors)
+        return Response({'status':"OK"})

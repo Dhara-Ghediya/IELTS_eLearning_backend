@@ -3,7 +3,7 @@ from rest_framework.fields import empty
 from .models import *
 # from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
-
+from teacher_app.serializers import WritingTestSerializer,ListeningTestSerializer,SpeakingTestSerializer,ReadingTestSerializer
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
@@ -37,3 +37,10 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
         fields = ['username', 'password']    
+
+
+class StudentWritingAnswersSerializer(serializers.ModelSerializer):
+    question=WritingTestSerializer
+    class Meta:
+        model = StudentWritingAnswers
+        fields = ['testNumber', 'question', 'answer','checkedQuestion','studentObtainMarks']

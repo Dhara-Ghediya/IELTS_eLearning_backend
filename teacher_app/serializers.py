@@ -41,8 +41,14 @@ class WritingTestSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def __init__(self, instance=None, data=..., **kwargs):
-        data = data.copy()
-        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+        # data = data.copy()
+        print(data)
+        try:
+            data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+            print("********************************")
+        except Exception as e:
+            print("error",e)
+            # data.teacher = TeacherModel.objects.filter(username=data.teacher).first().pk
         super().__init__(instance, data, **kwargs)
         
 class ListeningTestSerializer(serializers.ModelSerializer):
