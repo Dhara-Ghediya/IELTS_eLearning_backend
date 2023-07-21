@@ -1,4 +1,5 @@
 import re
+import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -9,7 +10,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
-
+from django.core.files.storage import FileSystemStorage
 # Create your views here.
 # def home(request):
 #     return render(request, 'index.html')
@@ -86,15 +87,22 @@ class WritingTestsView(APIView):
     def post(self, request):
         teacher = request.data.get('teacher')
         content = request.data.get('content', None)
-        images = request.data.get('images', [])
+        images = request.FILES.get('images', [])
         total_marks = request.data.get('total_marks')
         if content is None:
             return Response({'msg': 'Content is missing in the request.'}, status = 400)
         if WritingTests.objects.filter(question=request.data['content']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            print("images", images)
-            question_data = {'content': content, 'images': images}
+            image_url = None
+            try:
+                image_folder = 'teacher_app/media/images/'
+                fs = FileSystemStorage(location=image_folder)
+                saved_image = fs.save(images.name, images)
+                image_url = fs.url(saved_image)
+            except Exception as e:
+                print(e)
+            question_data = {'content': content, 'images': image_url}
             serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
             if serializer.is_valid():
                 serializer.save()
