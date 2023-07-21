@@ -81,3 +81,24 @@ class TeacherProfileView(APIView):
                 return Response(serializer.errors)
         else:
             return Response ({'msg': 'You are not registered! Please register first.'})
+
+class WritingTestsView(APIView):
+    def post(self, request):
+        teacher = request.data.get('teacher')
+        content = request.data.get('content', None)
+        images = request.data.get('images', [])
+        total_marks = request.data.get('total_marks')
+        if content is None:
+            return Response({'msg': 'Content is missing in the request.'}, status = 400)
+        if WritingTests.objects.filter(question=request.data['content']).exists():
+            return Response({'msg': 'Question already exists!'}, status = 409)
+        else:
+            print("images", images)
+            question_data = {'content': content, 'images': images}
+            serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'msg': 'Question has been added Successfully!'}, status = 201)
+            else:
+                return Response(serializer.errors)
+        # return Response({'msg': "Question already exists!"}, status=404)
