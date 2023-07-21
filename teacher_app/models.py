@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
-from rest_framework.authtoken.models import Token
+# from rest_framework.authtoken.models import Token
+# from rest_framework import exceptions
 import binascii
 import os
 import datetime
