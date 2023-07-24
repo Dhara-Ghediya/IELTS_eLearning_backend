@@ -19,12 +19,12 @@ class ProfileSerializer (serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
         
-    def __init__(self, instance=None, data=..., **kwargs):
-        data = data.copy()
-        print(self, data, kwargs, instance)
-        data['user'] = UserModel.objects.filter(username=data['user']).first().pk
-        print(data['user'])
-        super().__init__(instance, data, **kwargs)
+    # def __init__(self, instance=None, data=..., **kwargs):
+    #     data = data.copy()
+    #     print(self, data, kwargs, instance)
+    #     data['user'] = UserModel.objects.filter(username=data['user']).first().pk
+    #     print(data['user'])
+    #     super().__init__(instance, data, **kwargs)
 
     def is_valid(self, *, raise_exception=False):
         return super().is_valid(raise_exception=raise_exception)
@@ -38,9 +38,19 @@ class LoginSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = ['username', 'password']    
 
-
+class StudentTestSubmitModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentTestSubmitModel
+        fields = "__all__"
 class StudentWritingAnswersSerializer(serializers.ModelSerializer):
-    question=WritingTestSerializer
+    # question=WritingTestSerializer()
+    # testNumber=StudentTestSubmitModelSerializer
     class Meta:
         model = StudentWritingAnswers
         fields = ['testNumber', 'question', 'answer','checkedQuestion','studentObtainMarks']
+class StudentReadingAnswersSerializer(serializers.ModelSerializer):
+    # question=WritingTestSerializer()
+    # testNumber=StudentTestSubmitModelSerializer
+    class Meta:
+        model = StudentReadingAnswers
+        fields = ['testNumber', 'question', 'firstQuestionAnswer','secondQuestionAnswer','thirdQuestionAnswer','fourthQuestionAnswer','fifthQuestionAnswer','checkedQuestion','studentObtainMarks']

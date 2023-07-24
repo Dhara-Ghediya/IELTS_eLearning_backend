@@ -21,7 +21,7 @@ class MemberGroup(models.Model):
     
 class UserModel(models.Model):
     username = models.CharField(max_length = 100)
-    membership = models.ForeignKey(MemberGroup, on_delete = models.CASCADE, default = None)
+    membership = models.ForeignKey(MemberGroup, on_delete = models.CASCADE, default = MemberGroup.objects.first())
     email = models.EmailField(validators = [EmailValidator])
     password = models.CharField(max_length = 250, 
                                 validators = [MaxLengthValidator(limit_value = 250), 
