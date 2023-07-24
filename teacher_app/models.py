@@ -85,7 +85,7 @@ class SpeakingTests(models.Model):
     questionMarks = models.IntegerField(default = 0)
 
     def __str__(self):
-        return self.que_type + ": " + self.question
+        return self.question
 
 class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
@@ -95,5 +95,5 @@ class ReadingTests(models.Model):
     questionMarks = models.IntegerField(default=0)
     
     def __str__(self):
-        return self.que_type + ": " + self.question
+        return self.question
     
