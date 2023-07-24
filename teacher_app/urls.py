@@ -10,6 +10,10 @@ urlpatterns = [
     path('login', views.TeacherLoginView.as_view(), name="login"),
     path('writing-tests', views.WritingTestsView.as_view(), name="writing_tests"),
     path('listning-tests', views.ListeningTestsView.as_view(), name="listning_tests"),
+<<<<<<< HEAD
+=======
+    path('speaking-tests', views.SpeakingTestsView.as_view(), name="speaking_tests"),
+>>>>>>> dhara
     path('logout', views.TeacherLogout.as_view(), name="logout"),
     
 ] 
