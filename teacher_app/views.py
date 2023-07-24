@@ -72,7 +72,9 @@ class TeacherRegisterView(APIView):
 
 class TeacherProfileView(APIView):
     def post(self, request):
-        user = TeacherModel.objects.filter(username= request.data['user'])
+        print("iin user...", request.data['user'])
+        user = TeacherModel.objects.filter(id = request.data['user'])
+        print("user", user)
         if user.exists():
             serializer = TeacherProfileSerializer(data= request.data)
             if serializer.is_valid():
@@ -130,6 +132,18 @@ class SpeakingTestsView(APIView):
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
             serializer = SpeakingTestSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'msg':'Question has been added Successfully!'}, status=201)
+            else:
+                return Response(serializer.errors)
+            
+class ReadingTestsView(APIView):
+    def post(self, request):
+        if ReadingTests.objects.filter(question=request.data['question']).exists():
+            return Response({'msg': 'Question already exists!'}, status = 409)
+        else:
+            serializer = ReadingTestSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)

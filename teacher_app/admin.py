@@ -22,4 +22,6 @@ class SpeakingTestsAdmin(admin.ModelAdmin):
     list_display = ['id', 'teacher', 'timeStamp', 'question']
 admin.site.register(SpeakingTests, SpeakingTestsAdmin)
 
-admin.site.register(ReadingTests)
+class ReadingTestsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'teacher', 'timeStamp', 'question']
+admin.site.register(ReadingTests, ReadingTestsAdmin)

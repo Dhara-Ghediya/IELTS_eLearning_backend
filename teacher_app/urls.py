@@ -11,6 +11,7 @@ urlpatterns = [
     path('writing-tests', views.WritingTestsView.as_view(), name="writing_tests"),
     path('listning-tests', views.ListeningTestsView.as_view(), name="listning_tests"),
     path('speaking-tests', views.SpeakingTestsView.as_view(), name="speaking_tests"),
+    path('reading-tests', views.ReadingTestsView.as_view(), name="reading_tests"),
     path('logout', views.TeacherLogout.as_view(), name="logout"),
     
 ] 

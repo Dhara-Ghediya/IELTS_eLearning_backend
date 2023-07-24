@@ -100,7 +100,6 @@ class ReadingTests(models.Model):
     question4 = models.CharField(max_length=200)
     question5 = models.CharField(max_length=200)
 
-
     def __str__(self):
         return self.question
     
