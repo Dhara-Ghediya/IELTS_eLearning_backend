@@ -122,9 +122,6 @@ class ListeningTestsView(APIView):
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
                 return Response(serializer.errors)
-<<<<<<< HEAD
-        # return Response({'msg': "Question already exists!"}, status=404)
-=======
         # return Response({'msg': "Question already exists!"}, status=404)
 
 class SpeakingTestsView(APIView):
@@ -138,4 +135,3 @@ class SpeakingTestsView(APIView):
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
                 return Response(serializer.errors)
->>>>>>> dhara
