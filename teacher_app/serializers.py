@@ -24,11 +24,11 @@ class TeacherProfileSerializer (serializers.ModelSerializer):
     #     data['user'] = TeacherModel.objects.filter(username=data['user']).first().pk
     #     super().__init__(instance, data, **kwargs)
 
-    def is_valid(self, *, raise_exception=False):
-        return super().is_valid(raise_exception=raise_exception)
+    # def is_valid(self, *, raise_exception=False):
+    #     return super().is_valid(raise_exception=raise_exception)
     
-    def save(self, **kwargs):
-        return super().save(**kwargs)
+    # def save(self, **kwargs):
+    #     return super().save(**kwargs)
     
 class TeacherLoginSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,25 +45,15 @@ class WritingTestSerializer(serializers.ModelSerializer):
         model = WritingTests
         fields = "__all__"
 
-    # def __init__(self, instance=None, data=..., **kwargs):
-    #     # data = data.copy()
-    #     print(data)
-    #     try:
-    #         data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
-    #         print("********************************")
-    #     except Exception as e:
-    #         print("error",e)
-    #         # data.teacher = TeacherModel.objects.filter(username=data.teacher).first().pk
-    #     super().__init__(instance, data, **kwargs)
+    def __init__(self, instance=None, data=..., **kwargs):
+        data = data.copy()
+        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+        super().__init__(instance, data, **kwargs)
         
 class ListeningTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListeningTests
         fields = "__all__"
-
-    def __init__(self, instance=None, data=..., **kwargs):
-        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
-        super().__init__(instance, data, **kwargs)
 
 class SpeakingTestSerializer(serializers.ModelSerializer):
     class Meta:

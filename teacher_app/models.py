@@ -86,15 +86,20 @@ class SpeakingTests(models.Model):
     questionMarks = models.IntegerField(default = 0)
 
     def __str__(self):
-        return self.que_type + ": " + self.question
+        return self.question
 
 class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
-    # que_type = models.CharField(max_length=50, choices=COURSES)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
     questionMarks = models.IntegerField(default=0)
-    
+
+    question1 = models.CharField(max_length=200)
+    question2 = models.CharField(max_length=200)
+    question3 = models.CharField(max_length=200)
+    question4 = models.CharField(max_length=200)
+    question5 = models.CharField(max_length=200)
+
     def __str__(self):
-        return self.que_type + ": " + self.question
+        return self.question
     
