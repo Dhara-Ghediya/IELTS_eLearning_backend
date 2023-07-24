@@ -73,8 +73,8 @@ class StudentWritingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(WritingTests, verbose_name = "Question", on_delete = models.CASCADE)
     answer = models.TextField(verbose_name = "Answer from student")
-    checkedQuestion = models.BooleanField(default=False)
-    studentObtainMarks = models.IntegerField(default=0)
+    checkedQuestion = models.BooleanField(default = False)
+    studentObtainMarks = models.IntegerField(default = 0)
     
 class StudentReadingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
@@ -84,22 +84,22 @@ class StudentReadingAnswers(models.Model):
     thirdQuestionAnswer = models.TextField(verbose_name = "Third Question Answer from student")
     fourthQuestionAnswer = models.TextField(verbose_name = "Fourth Question Answer from student")
     fifthQuestionAnswer = models.TextField(verbose_name = "Fifth Question Answer from student")
-    checkedQuestion = models.BooleanField(default=False)
-    studentObtainMarks = models.IntegerField(default=0)
+    checkedQuestion = models.BooleanField(default = False)
+    studentObtainMarks = models.IntegerField(default = 0)
 
 class StudentListeningAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(ListeningTests, verbose_name = "Question",on_delete=models.CASCADE)
-    answer=models.TextField(verbose_name="student answer")
-    checkedQuestion = models.BooleanField(default=False)
-    studentObtainMarks = models.IntegerField(default=0)
+    answer = models.TextField(verbose_name = "student answer")
+    checkedQuestion = models.BooleanField(default = False)
+    studentObtainMarks = models.IntegerField(default = 0)
     
 class StudentSpeakingAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
-    question = models.ForeignKey(SpeakingTests, verbose_name="Question",on_delete=models.CASCADE)
-    answer = models.FileField(verbose_name="student Answer") 
-    checkedQuestion = models.BooleanField(default=False)
-    studentObtainMarks = models.IntegerField(default=0)
+    question = models.ForeignKey(SpeakingTests, verbose_name = "Question", on_delete = models.CASCADE)
+    answer = models.FileField(verbose_name = "student Answer") 
+    checkedQuestion = models.BooleanField(default = False)
+    studentObtainMarks = models.IntegerField(default = 0)
 
 
     

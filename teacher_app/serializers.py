@@ -36,25 +36,25 @@ class TeacherLoginSerializer(serializers.ModelSerializer):
         fields = ['username', 'password'] 
 
 class WritingTestSerializer(serializers.ModelSerializer):
-    teacher=serializers.SlugRelatedField(
-        many=False,
-        read_only=True,
-        slug_field='username'
-     )
+    # teacher=serializers.SlugRelatedField(
+    #     many=False,
+    #     read_only=True,
+    #     slug_field='username'
+    #  )
     class Meta:
         model = WritingTests
         fields = "__all__"
 
-    def __init__(self, instance=None, data=..., **kwargs):
-        data = data.copy()
-        data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
-        super().__init__(instance, data, **kwargs)
+    # def __init__(self, instance=None, data=..., **kwargs):
+    #     data = data.copy()
+    #     data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
+    #     super().__init__(instance, data, **kwargs)
         
 class ListeningTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListeningTests
         fields = "__all__"
-
+    
 class SpeakingTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpeakingTests

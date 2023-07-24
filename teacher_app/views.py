@@ -105,8 +105,10 @@ class WritingTestsView(APIView):
             except Exception as e:
                 print(e)
             question_data = {'content': content, 'images': image_url}
+            print(teacher)
             serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
             if serializer.is_valid():
+                # print(serializer.data)
                 serializer.save()
                 return Response({'msg': 'Question has been added Successfully!'}, status = 201)
             else:

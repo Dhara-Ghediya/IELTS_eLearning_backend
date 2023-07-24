@@ -54,3 +54,16 @@ class StudentReadingAnswersSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentReadingAnswers
         fields = ['testNumber', 'question', 'firstQuestionAnswer','secondQuestionAnswer','thirdQuestionAnswer','fourthQuestionAnswer','fifthQuestionAnswer','checkedQuestion','studentObtainMarks']
+
+
+class StudentListeningAnswersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentListeningAnswer
+        fields = ['testNumber', 'question', 'answer','checkedQuestion','studentObtainMarks']
+
+class StudentSpeakingAnswersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentSpeakingAnswer
+        fields = '__all__'
+        
+        

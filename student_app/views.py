@@ -16,11 +16,22 @@ from teacher_app.models import WritingTests,ListeningTests
 # def home(request):
 #     return render(request, 'index.html')
  
+def check_user_login(view_func):
+    def _wrapped_view(request, *args, **kwargs):
+        print(request.request.session.keys())
+        if 'student_user' in request.request.session.keys():
+            
+            return view_func(request, *args, **kwargs)
+        else:
+            
+            return Response("login is required")
+        
+    return _wrapped_view
+
 class LoginView(APIView):
     def post(self, request):
         try: 
             user = UserModel.objects.filter(username= request.data['username']).first()
-            # obj = UserModel.objects.filter(username=request.data['username'], password=request.data['password']).first()
             if check_password(request.data['password'], user.password):
                 # user = UserModel.objects.filter(username=request.data['username']).first()
                 request.session['student_user'] = user.username
@@ -88,6 +99,7 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
+    @check_user_login
     def get(self, request, *args, **kwargs):
         questions = []
         if WritingTests.objects.count() <= 2:
@@ -98,6 +110,7 @@ class WritingTestView(APIView):
         return Response(writingTestsSerializer.data)
     
     
+    @check_user_login
     def post(self, request, *args, **kwargs):
         print(request.data.get("username", ""))
         print(request.session.get('student_user', "***"))
@@ -115,7 +128,86 @@ class WritingTestView(APIView):
                 return Response(writingTestSerializer.errors)
         return Response({"errors":"error while saving test. please try again"})
     
-# class 
+class ReadingTestView(APIView):
+    def get(self, request, *args, **kwargs):
+        questions = []
+        if ReadingTests.objects.count() <= 2:
+            questions = ReadingTests.objects.all()
+        else:
+            questions = get_random_number_List(ReadingTests, 1)         
+        readingTestsSerializer = ReadingTestSerializer(questions, many=True)
+        return Response(readingTestsSerializer.data)
+    def post(self, request, *args, **kwargs):
+        temp = dict(request.data)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
+        if submitTest:
+            temp['testNumber'] = submitTest.id
+            temp['question'] = int(temp['question'][0])
+            temp['firstQuestionAnswer'] = temp['firstQuestionAnswer'][0]
+            temp['secondQuestionAnswer'] = temp['secondQuestionAnswer'][0]
+            temp['thirdQuestionAnswer'] = temp['thirdQuestionAnswer'][0]
+            temp['fourthQuestionAnswer'] = temp['fourthQuestionAnswer'][0]
+            temp['fifthQuestionAnswer'] = temp['fifthQuestionAnswer'][0]
+            readingTestSerializer = StudentReadingAnswersSerializer(data = temp)
+            if readingTestSerializer.is_valid():
+                readingTestSerializer.save()
+                return Response(readingTestSerializer.data)
+            else:
+                return Response(readingTestSerializer.errors)
+        return Response({"errors":"error while saving test. please try again"})
+    
+# class ReadingTestsView(viewsets.ModelViewSet):
+#     queryset = ReadingTests.objects.all()
+#     serializer_class=ReadingTestSerializer
+class ListingTestView(APIView):
+    def get(self, request, *args, **kwargs):
+        questions = []
+        if ListeningTests.objects.count() <= 2:
+            questions = ListeningTests.objects.all()
+        else:
+            questions = get_random_number_List(ListeningTests, 1)   
+        leashingTestsSerializer = ListeningTestSerializer(questions, many=True,context={"request": request})
+        return Response(leashingTestsSerializer.data)
+    def post(self, request, *args, **kwargs):
+        temp = dict(request.data)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
+        if submitTest:
+            temp['testNumber'] = submitTest.id
+            temp['question'] = int(temp['question'][0])
+            temp['answer'] = temp['answer'][0]
+            listingTestSerializer = StudentListeningAnswersSerializer(data = temp)
+            if listingTestSerializer.is_valid():
+                listingTestSerializer.save()
+                return Response(listingTestSerializer.data)
+            else:
+                return Response(listingTestSerializer.errors)
+        return Response({"errors":"error while saving test. please try again"})
+    
+class SpeakingTestView(APIView):
+    def get(self, request, *args, **kwargs):
+        questions = []
+        if SpeakingTests.objects.count() <= 2:
+            questions = SpeakingTests.objects.all()
+        else:
+            questions = get_random_number_List(SpeakingTests, 1)   
+        speakingTestsSerializer = SpeakingTestSerializer(questions, many=True, context={"request": request})
+        return Response(speakingTestsSerializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        temp = dict(request.data)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
+        if submitTest:
+            temp['testNumber'] = submitTest.id
+            temp['question'] = int(temp['question'][0])
+            temp['answer'] = temp['answer'][0]
+            speakingTestSerializer = StudentSpeakingAnswersSerializer(data = temp,context={"request": request})
+            if speakingTestSerializer.is_valid():
+                speakingTestSerializer.save()
+                return Response(speakingTestSerializer.data)
+            else:
+                return Response(speakingTestSerializer.errors)
+        return Response({"errors":"error while saving test. please try again"})
+    
 def get_random_number_List(model, numberOfQuestions):
     List = []
     numberList = []
