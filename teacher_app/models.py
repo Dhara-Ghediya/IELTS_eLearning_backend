@@ -1,8 +1,8 @@
 from django.db import models
 from .validators import *
 from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
-# from rest_framework.authtoken.models import Token
-# from rest_framework import exceptions
+from django.core.validators import FileExtensionValidator
+from rest_framework import exceptions
 import binascii
 import os
 import datetime
@@ -11,8 +11,8 @@ def audiofile_validator(value):
     file_extension_validator = FileExtensionValidator(ALLOWED_EXTENSIONS)
     file_extension_validator(value)
     max_file_size_validator(value)
-    
-# Create your models here.
+
+# model for teacher (user) registration 
 class TeacherModel(models.Model):
     username = models.CharField(max_length=100)
     email = models.EmailField(validators=[EmailValidator])
@@ -20,13 +20,12 @@ class TeacherModel(models.Model):
                                 validators=[MaxLengthValidator(limit_value=250), 
                                             MinLengthValidator(limit_value=8, 
                                                                message="Password must be at least 8 characters")])
-    
     def __str__(self):
         return self.username
-    
+
+# below model used to get more information about teacher (user)    
 class TeacherProfile(models.Model):
     user = models.OneToOneField(TeacherModel, on_delete=models.CASCADE)
-    # type_of_user = models.CharField(max_length=100)
     first_name = models.CharField(max_length=50, validators=[RegexValidator(regex=r'^[a-zA-Z]+$', 
                                                                             message="First Name must be Alphabetic")])
     last_name = models.CharField(max_length=50, validators=[RegexValidator(regex=r'^[a-zA-Z]+$', 
@@ -49,6 +48,7 @@ class TeacherProfile(models.Model):
 #         ("reading", "Reading")
 #     )
 
+# model used to add (only teacher can add) questions for writingTest  
 class WritingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
@@ -69,15 +69,14 @@ class WritingTests(models.Model):
         self.question['images'].append(img_url)
         self.save()
 
+# model used to add (only teacher can add) questions for listeningTest
 class ListeningTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     question = models.FileField(upload_to='teacher_app/media/audios/', blank=False, validators=[audiofile_validator])
     timeStamp = models.DateTimeField(auto_now_add = True)
     questionMarks = models.IntegerField(default = 0)
 
-    # def __str__(self):
-    #     return self.question
-
+# model used to add (only teacher can add) questions for speakingTest  
 class SpeakingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
@@ -88,6 +87,7 @@ class SpeakingTests(models.Model):
     def __str__(self):
         return self.question
 
+# model used to add (only teacher can add) questions for readingTest  
 class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
     question = models.TextField()

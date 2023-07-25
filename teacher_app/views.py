@@ -14,11 +14,32 @@ from django.core.files.storage import FileSystemStorage
 # Create your views here.
 # def home(request):
 #     return render(request, 'index.html')
- 
+
+def imagefile_validator(value):
+    print("value: ", value)
+    # file_extension_validator = FileExtensionValidator(ALLOWED_EXTENSIONS_FOR_IMAGE)
+    # print(value)
+    # file_extension_validator(value)
+    if value.split('.')[-1] in ALLOWED_EXTENSIONS_FOR_IMAGE:
+        return True
+    else:
+        return False
+    # max_file_size_validator_for_image(value)
+
+# to login for teacher
 class TeacherLoginView(APIView):
     def post(self, request):
+        if str(request.data['username']).strip() != "":
+            pass
+        else:
+            return Response({'msg': 'Username is required'}, status = 404)
+        if str(request.data['password']).strip() != "":
+            pass
+        else:
+            return Response({'msg': 'password is required'}, status = 404)
         try: 
             user = TeacherModel.objects.filter(username = request.data['username']).first()
+            # used to check encrypted password  
             if check_password(request.data['password'], user.password):
                 request.session['teacher_user'] = user.username
                 serializer = TeacherLoginSerializer(user)
@@ -27,7 +48,8 @@ class TeacherLoginView(APIView):
                 return Response({'msg': 'Invalid credentials'}, status = 404)
         except Exception as e:
             return Response({'msg': 'You are not registered user!'}, status = 404)
-
+        
+# for logout (teachers)
 class TeacherLogout(APIView):
     # permission_classes = (IsAuthenticated, )
     def post(self, request):
@@ -36,13 +58,14 @@ class TeacherLogout(APIView):
             return Response({'msg': 'Successfully Logout'}, status= 200)
         else:
             return Response({'msg': 'Already Logged out!'})
-
+        
+# for teacher regtistration
 class TeacherRegisterView(APIView):
     def post(self, request):
-        user = TeacherModel.objects.filter(username= request.data['username'])
+        user = TeacherModel.objects.filter(username=request.data['username'])
         # validation 
         if user.exists():
-            return Response({'msg': 'Registration already exists'}, status= 404)
+            return Response({'msg': 'Registration already exists'}, status=404)
         else:
             reg_errors = []
             if not re.match(r'^(?![._])[a-zA-Z0-9_.]{5,20}$', request.data['username']):
@@ -59,7 +82,7 @@ class TeacherRegisterView(APIView):
                 else:
                     reg_errors.append({'password': ["at least one digit", "at least one uppercase letter", "at least one lowercase letter", "at least one special character[$@#]"]})
                 if len(reg_errors)== 0:
-                    serializer = TeacherRegistrationSerializer(data= request.data, many= False)
+                    serializer = TeacherRegistrationSerializer(data=request.data, many=False)
                     if serializer.is_valid():
                         serializer
                         serializer.save()
@@ -70,6 +93,7 @@ class TeacherRegisterView(APIView):
                     return Response({'msg': reg_errors})
             return Response({'msg': reg_errors})
 
+# for teacher profile
 class TeacherProfileView(APIView):
     def post(self, request):
         print("iin user...", request.data['user'])
@@ -85,6 +109,7 @@ class TeacherProfileView(APIView):
         else:
             return Response ({'msg': 'You are not registered! Please register first.'})
 
+# to post questions of Writing Test (only teacher can post questions)
 class WritingTestsView(APIView):
     def post(self, request):
         teacher = request.data.get('teacher')
@@ -107,18 +132,25 @@ class WritingTestsView(APIView):
                 saved_image = fs.save(images.name, images)
                 image_url = fs.url(saved_image)
             except Exception as e:
-                print(e)
-            question_data = {'content': content, 'images': image_url}
-            print(teacher)
-            serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
-            if serializer.is_valid():
-                # print(serializer.data)
-                serializer.save()
-                return Response({'msg': 'Question has been added Successfully!'}, status = 201)
-            else:
-                return Response(serializer.errors)
+                print("error....", e)
+            try:
+                check=imagefile_validator(image_url)
+                if check:
+                    question_data = {'content': content, 'images': image_url}
+                    serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
+                    if serializer.is_valid():
+                        serializer.save()   
+                        return Response({'msg': 'Question has been added Successfully!'}, status = 201)
+                    else:
+                        return Response(serializer.errors)
+                else:
+                    return Response({'msg': 'Invalid Image Extention (only .png, .jpg, .jpeg, .webp allowed)!'}, status = 404)
+            except Exception as e:
+                return Response({"error": e})
+            
         # return Response({'msg': "Question already exists!"}, status=404)
 
+# to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
     def post(self, request):
         if ListeningTests.objects.filter(question=request.data['question']).exists():
@@ -132,6 +164,7 @@ class ListeningTestsView(APIView):
                 return Response(serializer.errors)
         # return Response({'msg': "Question already exists!"}, status=404)
 
+# to post questions of Speaking Test (only teacher can post questions)
 class SpeakingTestsView(APIView):
     def post(self, request):
         if SpeakingTests.objects.filter(question=request.data['question']).exists():
@@ -143,7 +176,8 @@ class SpeakingTestsView(APIView):
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
                 return Response(serializer.errors)
-            
+
+# to post questions of Reading Test (only teacher can post questions)            
 class ReadingTestsView(APIView):
     def post(self, request):
         if ReadingTests.objects.filter(question=request.data['question']).exists():

@@ -11,9 +11,10 @@ class TeacherRegistrationSerializer(serializers.ModelSerializer):
         
     def __init__(self, instance=None, data=..., **kwargs):
         data = data.copy()
+        # to encrypt the password
         data['password'] = make_password(data['password'])
         super().__init__(instance, data, **kwargs)
-        
+     
 class TeacherProfileSerializer (serializers.ModelSerializer):
     class Meta:
         model = TeacherProfile
@@ -29,22 +30,18 @@ class TeacherProfileSerializer (serializers.ModelSerializer):
     
     # def save(self, **kwargs):
     #     return super().save(**kwargs)
-    
+ 
 class TeacherLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherModel
         fields = ['username', 'password'] 
 
 class WritingTestSerializer(serializers.ModelSerializer):
-    # teacher=serializers.SlugRelatedField(
-    #     many=False,
-    #     read_only=True,
-    #     slug_field='username'
-    #  )
     class Meta:
         model = WritingTests
         fields = "__all__"
 
+    ### to get id using username 
     # def __init__(self, instance=None, data=..., **kwargs):
     #     data = data.copy()
     #     data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
@@ -64,3 +61,4 @@ class ReadingTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReadingTests
         fields = "__all__"
+        
