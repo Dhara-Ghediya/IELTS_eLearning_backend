@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
+from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator,MaxValueValidator,MinValueValidator
 from rest_framework.authtoken.models import Token
 from teacher_app.models import WritingTests,ReadingTests,ListeningTests,SpeakingTests
 import binascii
@@ -21,7 +21,7 @@ class MemberGroup(models.Model):
     
 class UserModel(models.Model):
     username = models.CharField(max_length = 100)
-    membership = models.ForeignKey(MemberGroup, on_delete = models.CASCADE, default = MemberGroup.objects.first())
+    # membership = models.ForeignKey(MemberGroup, on_delete = models.CASCADE, default = MemberGroup.objects.first())
     email = models.EmailField(validators = [EmailValidator])
     password = models.CharField(max_length = 250, 
                                 validators = [MaxLengthValidator(limit_value = 250), 
@@ -73,11 +73,13 @@ class StudentWritingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(WritingTests, verbose_name = "Question", on_delete = models.CASCADE)
     answer = models.TextField(verbose_name = "Answer from student")
+    timestamp = models.DateTimeField(auto_now_add = True)
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
     
 class StudentReadingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
     firstQuestionAnswer = models.TextField(verbose_name = "First Question Answer from student")
     secondQuestionAnswer = models.TextField(verbose_name = "Second Question Answer from student")
@@ -90,6 +92,7 @@ class StudentReadingAnswers(models.Model):
 class StudentListeningAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(ListeningTests, verbose_name = "Question",on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     answer = models.TextField(verbose_name = "student answer")
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
@@ -97,6 +100,7 @@ class StudentListeningAnswer(models.Model):
 class StudentSpeakingAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(SpeakingTests, verbose_name = "Question", on_delete = models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     answer = models.FileField(verbose_name = "student Answer") 
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)

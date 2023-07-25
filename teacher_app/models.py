@@ -1,6 +1,6 @@
 from django.db import models
 from .validators import *
-from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
+from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator,MaxValueValidator,MinValueValidator
 # from rest_framework.authtoken.models import Token
 # from rest_framework import exceptions
 import binascii
@@ -52,7 +52,7 @@ class TeacherProfile(models.Model):
 class WritingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
-    questionMarks = models.IntegerField(default = 0)
+    questionMarks = models.IntegerField(default = 1, validators = [MaxValueValidator(limit_value = 50), MinValueValidator(limit_value=1)])
     timeStamp = models.DateTimeField(auto_now_add = True)
     question = models.JSONField()
     
@@ -73,7 +73,7 @@ class ListeningTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     question = models.FileField(upload_to='teacher_app/media/audios/', blank=False, validators=[audiofile_validator])
     timeStamp = models.DateTimeField(auto_now_add = True)
-    questionMarks = models.IntegerField(default = 0)
+    questionMarks = models.IntegerField(default = 1, validators = [MaxValueValidator(limit_value = 50), MinValueValidator(limit_value=1)])
 
     # def __str__(self):
     #     return self.question
@@ -83,7 +83,7 @@ class SpeakingTests(models.Model):
     # que_type = models.CharField(max_length=50, choices=COURSES)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add = True)
-    questionMarks = models.IntegerField(default = 0)
+    questionMarks = models.IntegerField(default = 1, validators = [MaxValueValidator(limit_value = 50), MinValueValidator(limit_value=1)])
 
     def __str__(self):
         return self.question
@@ -92,13 +92,13 @@ class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
-    questionMarks = models.IntegerField(default=0)
+    questionMarks = models.IntegerField(default = 1, validators = [MaxValueValidator(limit_value = 50), MinValueValidator(limit_value=1)])
 
-    question1 = models.CharField(max_length=200)
-    question2 = models.CharField(max_length=200)
-    question3 = models.CharField(max_length=200)
-    question4 = models.CharField(max_length=200)
-    question5 = models.CharField(max_length=200)
+    question1 = models.CharField(max_length = 200)
+    question2 = models.CharField(max_length = 200)
+    question3 = models.CharField(max_length = 200)
+    question4 = models.CharField(max_length = 200)
+    question5 = models.CharField(max_length = 200)
 
     def __str__(self):
         return self.question

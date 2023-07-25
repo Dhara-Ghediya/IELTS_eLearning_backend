@@ -3,6 +3,7 @@ from rest_framework.fields import empty
 from .models import *
 # from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
+from student_app.models import *
 
 class TeacherRegistrationSerializer(serializers.ModelSerializer):
     class Meta:

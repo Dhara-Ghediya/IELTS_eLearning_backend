@@ -15,6 +15,8 @@ urlpatterns = [
     path('speaking-tests', views.SpeakingTestsView.as_view(), name="speaking_tests"),
     path('reading-tests', views.ReadingTestsView.as_view(), name="reading_tests"),
     path('logout', views.TeacherLogout.as_view(), name="logout"),
+    path('Check Writing TestView', views.CheckWritingTestView.as_view(), name="CheckWritingTestView"),
+    path('Questions List View', views.QuestionsListView.as_view(), name="QuestionsListView"),
     
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

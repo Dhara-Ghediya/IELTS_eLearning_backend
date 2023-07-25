@@ -1,3 +1,4 @@
+import json
 from rest_framework import serializers
 from rest_framework.fields import empty
 from .models import *
@@ -10,8 +11,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
     def __init__(self, instance=None, data=..., **kwargs):
-        data = data.copy()
-        data['password'] = make_password(data['password'])
+        try:
+            data = data.copy()
+            data['password'] = make_password(data['password'])
+        except:
+            pass
         super().__init__(instance, data, **kwargs)
         
 class ProfileSerializer (serializers.ModelSerializer):
@@ -65,5 +69,17 @@ class StudentSpeakingAnswersSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentSpeakingAnswer
         fields = '__all__'
-        
+
+class StudentWritingTestCheckSerializer(serializers.ModelSerializer):
+    testNumber = StudentTestSubmitModelSerializer()
+    question = WritingTestSerializer()
+    student = serializers.SerializerMethodField()
+    class Meta:
+        model = StudentWritingAnswers
+        fields = "__all__"
+        read_only_fields = ['answer','student','question','testNumber','id']
+            
+    def get_student(self,obj):
+        student=obj.testNumber.student
+        return {"username":student.username,"email":student.email}
         

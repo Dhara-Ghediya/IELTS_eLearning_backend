@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
+from student_app.serializers import *
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
@@ -151,3 +152,34 @@ class ReadingTestsView(APIView):
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
                 return Response(serializer.errors)
+            
+class CheckWritingTestView(APIView):
+    def get(self, request, *args, **kwargs):
+        questionId = request.data.get('question', None)
+        if questionId is None:
+            return Response({'msg': 'Question Id is missing in the request.'}, status = 400)
+        testPaper = StudentWritingAnswers.objects.get(id=questionId)
+        serializer = StudentWritingTestCheckSerializer(testPaper)
+        return Response(serializer.data, status = 201)
+        
+    def patch(self, request, *args, **kwargs):
+        print(request.data)
+        data = dict(request.data)
+        data['checkedQuestion']=True
+        questionId = request.data.get('question', None)
+        if questionId is None:
+            return Response({'msg': 'Question Id is missing in the request.'}, status = 400)
+        testPaper = StudentWritingAnswers.objects.get(id=questionId)
+        serializer = StudentWritingTestCheckSerializer(testPaper,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg':'Question has been checked Successfully!',"data":serializer.data}, status=201)
+        else:
+            return Response(serializer.errors)
+
+class QuestionsListView(APIView):
+    def get(self, request, *args, **kwargs):
+        questions = WritingTests.objects.filter(teacher=TeacherModel.objects.filter(username = request.session.get('teacher_user')).first())
+        print(questions)
+        serializer = WritingTestSerializer(questions, many=True)
+        return Response(serializer.data, status = 201)
