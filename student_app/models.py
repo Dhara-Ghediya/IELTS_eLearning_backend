@@ -12,6 +12,7 @@ class Permissions(models.Model):
     
     def __str__(self) -> str:
         return self.permissionName
+    
 class MemberGroup(models.Model):
     group_name = models.CharField(max_length = 100)
     permissions = models.ManyToManyField(Permissions, blank=True)
