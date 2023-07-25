@@ -54,7 +54,8 @@ class Logout(APIView):
 
 class RegisterView(APIView):
     def post(self, request):
-        user = UserModel.objects.filter(username= request.data['username'])
+        print("Register View Started")
+        user = UserModel.objects.filter(username = request.data['username'])
         # validation 
         if user.exists():
             return Response({'msg': 'Registration already exists'}, status= 404)
@@ -74,6 +75,7 @@ class RegisterView(APIView):
                 else:
                     reg_errors.append({'password': ["at least one digit", "at least one uppercase letter", "at least one lowercase letter", "at least one special character[$@#]"]})
                 if len(reg_errors)== 0:
+                    print("call...")
                     serializer = RegistrationSerializer(data= request.data, many= False)
                     if serializer.is_valid():
                         serializer

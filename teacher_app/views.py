@@ -91,6 +91,10 @@ class WritingTestsView(APIView):
         content = request.data.get('content', None)
         images = request.FILES.get('images', [])
         total_marks = request.data.get('total_marks')
+        try:
+            teacher = TeacherModel.objects.get(username=teacher).pk
+        except Exception as e:
+            return Response({'msg': 'User not found!'}, status = 404)
         if content is None:
             return Response({'msg': 'Content is missing in the request.'}, status = 400)
         if WritingTests.objects.filter(question=request.data['content']).exists():
