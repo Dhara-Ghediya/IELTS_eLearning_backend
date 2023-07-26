@@ -15,11 +15,9 @@ from django.core.files.storage import FileSystemStorage
 # Create your views here.
 # def home(request):
 #     return render(request, 'index.html')
-
+ 
 def imagefile_validator(value):
-    print("value: ", value)
     # file_extension_validator = FileExtensionValidator(ALLOWED_EXTENSIONS_FOR_IMAGE)
-    # print(value)
     # file_extension_validator(value)
     if value.split('.')[-1] in ALLOWED_EXTENSIONS_FOR_IMAGE:
         return True
@@ -115,41 +113,37 @@ class WritingTestsView(APIView):
     def post(self, request):
         teacher = request.data.get('teacher')
         content = request.data.get('content', None)
-        images = request.FILES.get('images', [])
-        total_marks = request.data.get('total_marks')
+        images = request.data.get('images', None)
         try:
             teacher = TeacherModel.objects.get(username=teacher).pk
-        except Exception as e:
-            return Response({'msg': 'User not found!'}, status = 404)
+        except TeacherModel.DoesNotExist:
+            return Response({'msg': 'User not found!'}, status=404)
+        
         if content is None:
             return Response({'msg': 'Content is missing in the request.'}, status = 400)
+        
         if WritingTests.objects.filter(question=request.data['content']).exists():
-            return Response({'msg': 'Question already exists!'}, status = 409)
+            return Response({'msg': 'Question already exists!'}, status = 409)  
         else:
-            image_url = None
             try:
-                image_folder = 'teacher_app/media/images/'
-                fs = FileSystemStorage(location=image_folder)
-                saved_image = fs.save(images.name, images)
-                image_url = fs.url(saved_image)
-            except Exception as e:
-                print("error....", e)
-            try:
-                check=imagefile_validator(image_url)
-                if check:
-                    question_data = {'content': content, 'images': image_url}
-                    serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data, 'total_marks': total_marks})
-                    if serializer.is_valid():
-                        serializer.save()   
-                        return Response({'msg': 'Question has been added Successfully!'}, status = 201)
-                    else:
-                        return Response(serializer.errors)
+                image_url = None
+                if images is not None:
+                    image_folder = 'teacher_app/media/images/'
+                    fs = FileSystemStorage(location=image_folder)
+                    saved_image = fs.save(images.name, images)
+                    image_url = fs.url(saved_image)
+                    if not imagefile_validator(image_url):
+                        return Response({'msg': 'Invalid Image Extension (only .png, .jpg, .jpeg, .webp allowed)!'}, status=400)
+                question_data = {'content': content, 'images': image_url}
+                serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data})
+                if serializer.is_valid():
+                    serializer.save()   
+                    return Response({'msg': 'Question has been added Successfully!'}, status=201)
                 else:
-                    return Response({'msg': 'Invalid Image Extention (only .png, .jpg, .jpeg, .webp allowed)!'}, status = 404)
+                    return Response(serializer.errors, status=400)
             except Exception as e:
-                return Response({"error": e})
-            
-        # return Response({'msg': "Question already exists!"}, status=404)
+                return Response({"error": str(e)}, status=500)
+        # # return Response({'msg': "Question already exists!"}, status=404)
 
 # to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
