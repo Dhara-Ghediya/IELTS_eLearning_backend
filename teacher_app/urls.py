@@ -3,16 +3,14 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-
 urlpatterns = [
     path('register', views.TeacherRegisterView.as_view(), name="register"),
     path('profile', views.TeacherProfileView.as_view(), name="profile"),
     path('login', views.TeacherLoginView.as_view(), name="login"),
-    path('writing_tests', views.WritingTestsView.as_view(), name="writing_tests"),
-    path('listning-tests', views.ListeningTestsView.as_view(), name="listning_tests"),
-    path('speaking-tests', views.SpeakingTestsView.as_view(), name="speaking_tests"),
-    path('reading-tests', views.ReadingTestsView.as_view(), name="reading_tests"),
+    path('writingTests', views.WritingTestsView.as_view(), name="writing_tests"),
+    path('listningTests', views.ListeningTestsView.as_view(), name="listning_tests"),
+    path('speakingTests', views.SpeakingTestsView.as_view(), name="speaking_tests"),
+    path('readingTests', views.ReadingTestsView.as_view(), name="reading_tests"),
     path('logout', views.TeacherLogout.as_view(), name="logout"),
     
 ] 
