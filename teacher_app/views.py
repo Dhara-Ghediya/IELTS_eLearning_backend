@@ -157,36 +157,52 @@ class ListeningTestsView(APIView):
         else:
             serializer = ListeningTestSerializer(data=request.data)
             if serializer.is_valid():
-                print("if......")
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
-                print("else..")
                 return Response(serializer.errors, status= 404)
         # return Response({'msg': "Question already exists!"}, status=404)
 
 # to post questions of Speaking Test (only teacher can post questions)
 class SpeakingTestsView(APIView):
     def post(self, request):
+        try:
+            data = request.data.copy()
+            data['teacher'] = TeacherModel.objects.get(username=data['teacher']).pk
+        except TeacherModel.DoesNotExist:
+            return Response({'msg': 'User not found!'}, status=404)
+
         if SpeakingTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            serializer = SpeakingTestSerializer(data=request.data)
+            serializer = SpeakingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
-                return Response(serializer.errors)
+                return Response(serializer.errors, status= 404)
 
 # to post questions of Reading Test (only teacher can post questions)            
 class ReadingTestsView(APIView):
     def post(self, request):
+        print("request data", request.data)
+        try:
+            data = request.data.copy()
+            data['teacher'] = TeacherModel.objects.get(username=data['teacher']).pk
+        except TeacherModel.DoesNotExist:
+            return Response({'msg': 'User not found!'}, status=404)
+        
         if ReadingTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            serializer = ReadingTestSerializer(data=request.data)
+            print("yes")
+            print("data...", data)
+            serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
+                print("valid")
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
-                return Response(serializer.errors)
+                print("invalid")
+                return Response(serializer.errors, status= 404)
+            
