@@ -71,7 +71,7 @@ class WritingTests(models.Model):
 # model used to add (only teacher can add) questions for listeningTest
 class ListeningTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
-    question = models.FileField(upload_to='teacher_app/media/audios/', blank=False, validators=[audiofile_validator])
+    question = models.FileField(upload_to='audios/', blank=False, validators=[audiofile_validator])
     timeStamp = models.DateTimeField(auto_now_add = True)
 
 # model used to add (only teacher can add) questions for speakingTest  
