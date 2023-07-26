@@ -148,15 +148,22 @@ class WritingTestsView(APIView):
 # to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
     def post(self, request):
+        try:
+            request.data['teacher'] = TeacherModel.objects.get(username=request.data['teacher']).pk
+        except TeacherModel.DoesNotExist:
+            return Response({'msg': 'User not found!'}, status=404)
+        
         if ListeningTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
             serializer = ListeningTestSerializer(data=request.data)
             if serializer.is_valid():
+                print("if......")
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
-                return Response(serializer.errors)
+                print("else..")
+                return Response(serializer.errors, status= 404)
         # return Response({'msg': "Question already exists!"}, status=404)
 
 # to post questions of Speaking Test (only teacher can post questions)

@@ -71,9 +71,8 @@ class WritingTests(models.Model):
 # model used to add (only teacher can add) questions for listeningTest
 class ListeningTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
-    question = models.FileField(upload_to='teacher_app/media/audios/', blank=False, validators=[audiofile_validator])
+    question = models.FileField(upload_to='audios/', blank=False, validators=[audiofile_validator])
     timeStamp = models.DateTimeField(auto_now_add = True)
-    questionMarks = models.IntegerField(default = 0)
 
 # model used to add (only teacher can add) questions for speakingTest  
 class SpeakingTests(models.Model):
@@ -81,7 +80,6 @@ class SpeakingTests(models.Model):
     # que_type = models.CharField(max_length=50, choices=COURSES)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add = True)
-    questionMarks = models.IntegerField(default = 0)
 
     def __str__(self):
         return self.question
@@ -91,7 +89,6 @@ class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
-    questionMarks = models.IntegerField(default=0)
 
     question1 = models.CharField(max_length = 200)
     question2 = models.CharField(max_length = 200)
