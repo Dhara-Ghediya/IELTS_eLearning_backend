@@ -82,4 +82,19 @@ class StudentWritingTestCheckSerializer(serializers.ModelSerializer):
     def get_student(self,obj):
         student=obj.testNumber.student
         return {"username":student.username,"email":student.email}
-        
+
+class WritingTestAnswerList(serializers.ModelSerializer):
+    teacher=serializers.SerializerMethodField()
+    # typeOftest=serializers.SerializerMethodField()
+    class Meta:
+        model = StudentWritingAnswers
+        fields = '__all__'
+    
+    def get_teacher(self,obj):
+        teacher=obj.question.teacher
+        return {"username":teacher.username,"email":teacher.email}
+    
+    # def get_typeOftest(self,obj):
+    #     typeOftest=obj.question.typeOftest
+    #     return typeOftest.name
+    
