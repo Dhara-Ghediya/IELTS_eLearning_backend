@@ -15,11 +15,10 @@ from teacher_app.models import WritingTests,ListeningTests
 # Create your views here.
 # def home(request):
 #     return render(request, 'index.html')
- 
 
 class LoginView(APIView):
+
     def post(self, request):
-        
         try: 
             user = UserModel.objects.filter(username= request.data['username']).first()
             if check_password(request.data['password'], user.password):
@@ -87,6 +86,7 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
+
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -99,13 +99,12 @@ class WritingTestView(APIView):
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
         return Response(writingTestsSerializer.data, status=200)
     
-     
     def post(self, request, *args, **kwargs):
-        check, obj =token_auth(request)
+        check, obj = token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
             # check that come value form request is correct
             check, msg = check_value_validation(temp)
@@ -124,7 +123,6 @@ class WritingTestView(APIView):
     
 class ReadingTestView(APIView):
     
-     
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -142,7 +140,7 @@ class ReadingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
             # check that come value form request is correct
             check, msg = check_value_validation(temp)
@@ -158,14 +156,11 @@ class ReadingTestView(APIView):
             readingTestSerializer = StudentReadingAnswersSerializer(data = temp)
             if readingTestSerializer.is_valid():
                 readingTestSerializer.save()
-                return Response(readingTestSerializer.data)
+                return Response(readingTestSerializer.data, status=201)
             else:
                 return Response(readingTestSerializer.errors)
         return Response({"errors": "error while saving test. please try again"})
     
-# class ReadingTestsView(viewsets.ModelViewSet):
-#     queryset = ReadingTests.objects.all()
-#     serializer_class=ReadingTestSerializer
 class ListingTestView(APIView):
      
     def get(self, request, *args, **kwargs):
@@ -185,7 +180,7 @@ class ListingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
             # check that come value form request is correct
             check, msg = check_value_validation(temp)
@@ -197,7 +192,7 @@ class ListingTestView(APIView):
             listingTestSerializer = StudentListeningAnswersSerializer(data = temp)
             if listingTestSerializer.is_valid():
                 listingTestSerializer.save()
-                return Response(listingTestSerializer.data)
+                return Response(listingTestSerializer.data, status=201)
             else:
                 return Response(listingTestSerializer.errors)
         return Response({"errors": "error while saving test. please try again"})
@@ -215,14 +210,13 @@ class SpeakingTestView(APIView):
             questions = get_random_number_List(SpeakingTests, 1)   
         speakingTestsSerializer = SpeakingTestSerializer(questions, many=True, context={"request": request})
         return Response(speakingTestsSerializer.data, status=200)
-    
      
     def post(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
             # check that come value form request is correct
             check, msg = check_value_validation(temp)
@@ -235,7 +229,7 @@ class SpeakingTestView(APIView):
             speakingTestSerializer = StudentSpeakingAnswersSerializer(data = temp, context = {"request": request})
             if speakingTestSerializer.is_valid():
                 speakingTestSerializer.save()
-                return Response(speakingTestSerializer.data)
+                return Response(speakingTestSerializer.data, status=201)
             else:
                 return Response(speakingTestSerializer.errors)
         return Response({"errors":"error while saving test. please try again"})
@@ -247,6 +241,7 @@ class StudentWritingTestAnswersLists(APIView):
         print(answerList)
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
+    
 # ----------------------------------------------------------------
 # return random test questions for test
 def get_random_number_List(model, numberOfQuestions):

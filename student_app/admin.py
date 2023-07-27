@@ -15,7 +15,10 @@ class StudentTestSubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'timestamp', 'student']
 admin.site.register(StudentTestSubmitModel, StudentTestSubmissionAdmin)
 
-admin.site.register(StudentWritingAnswers)
+class StudentWritingAnsAdmin(admin.ModelAdmin):
+    list_display = ['testNumber', 'answer', 'timestamp', ]
+admin.site.register(StudentWritingAnswers, StudentWritingAnsAdmin)
+
 admin.site.register(StudentReadingAnswers)
 admin.site.register(StudentListeningAnswer)
 admin.site.register(StudentSpeakingAnswer)
