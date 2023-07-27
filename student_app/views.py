@@ -30,8 +30,7 @@ class LoginView(APIView):
             else:
                 return Response({'msg': 'Invalid credentials'}, status= 404)
         except Exception as e:
-            print('Error', e)
-            return Response({'msg': 'You are not registered user &&&&!'}, status= 404)
+            return Response({'msg': 'You are not registered user!'}, status= 404)
 
 class Logout(APIView):
     # permission_classes = (IsAuthenticated, )
@@ -91,26 +90,22 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
-    
-    
+    @check_user_login
     def get(self, request, *args, **kwargs):
-        check, obj =token_auth(request)
-        if not check:
-            return Response({'msg': obj}, status= 404)
         questions = []
         if WritingTests.objects.count() <= 2:
+            print("if condition")
             questions = WritingTests.objects.all()
         else:
             questions = get_random_number_List(WritingTests, 1)         
-        writingTestsSerializer = WritingTestSerializer(questions, many = True)
+        writingTestsSerializer = WritingTestSerializer(questions, many=True)
         return Response(writingTestsSerializer.data)
     
     
      
     def post(self, request, *args, **kwargs):
-        check, obj =token_auth(request)
-        if not check:
-            return Response({'msg': obj}, status= 404)
+        print(request.data.get("username", ""))
+        print(request.session.get('student_user', "***"))
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
         if submitTest:
@@ -126,7 +121,7 @@ class WritingTestView(APIView):
                 writingTestSerializer.save()
                 return Response(writingTestSerializer.data)
             else:
-                return Response(writingTestSerializer.errors)
+                return Response({"details": writingTestSerializer.errors})
         return Response({"errors":"error while saving test. please try again"})
     
 class ReadingTestView(APIView):
@@ -143,7 +138,6 @@ class ReadingTestView(APIView):
             questions = get_random_number_List(ReadingTests, 1)         
         readingTestsSerializer = ReadingTestSerializer(questions, many=True)
         return Response(readingTestsSerializer.data)
-     
     def post(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -186,8 +180,6 @@ class ListingTestView(APIView):
             questions = get_random_number_List(ListeningTests, 1)   
         leashingTestsSerializer = ListeningTestSerializer(questions, many=True,context={"request": request})
         return Response(leashingTestsSerializer.data)
-    
-     
     def post(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -221,7 +213,7 @@ class SpeakingTestView(APIView):
             questions = SpeakingTests.objects.all()
         else:
             questions = get_random_number_List(SpeakingTests, 1)   
-        speakingTestsSerializer = SpeakingTestSerializer(questions, many = True, context = {"request": request})
+        speakingTestsSerializer = SpeakingTestSerializer(questions, many=True, context={"request": request})
         return Response(speakingTestsSerializer.data)
     
      
@@ -260,8 +252,9 @@ class StudentWritingTestAnswersLists(APIView):
 def get_random_number_List(model, numberOfQuestions):
     List = []
     numberList = []
+    idList = [x.id for x in model.objects.all()]
     while len(List) < numberOfQuestions:
-            var = random.randint(1, model.objects.count())
+            var = random.choice(idList)
             if var not in numberList:
                 try:
                     List.append(model.objects.get(id = var))
