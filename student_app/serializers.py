@@ -83,7 +83,7 @@ class StudentWritingTestCheckSerializer(serializers.ModelSerializer):
         student=obj.testNumber.student
         return {"username":student.username,"email":student.email}
 
-class WritingTestAnswerList(serializers.ModelSerializer):
+class WritingTestAnswerListSerializer(serializers.ModelSerializer):
     teacher=serializers.SerializerMethodField()
     # typeOftest=serializers.SerializerMethodField()
     class Meta:

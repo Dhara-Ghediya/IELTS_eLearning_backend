@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.db import models
 from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator,MaxValueValidator,MinValueValidator
 from rest_framework.authtoken.models import Token
 from teacher_app.models import WritingTests,ReadingTests,ListeningTests,SpeakingTests
 import binascii
 import os
-
+from rest_framework.authtoken.models import Token
 
 class Permissions(models.Model):
     permissionName = models.CharField(verbose_name = "permission name", max_length = 180)
@@ -105,6 +106,29 @@ class StudentSpeakingAnswer(models.Model):
     answer = models.FileField(verbose_name = "student Answer") 
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
+class UserTokens(models.Model):
+    """
+    The default authorization token model.
+    """
+    key = models.CharField(("Key"), max_length=40, primary_key=True)
+    user = models.OneToOneField(UserModel, related_name='auth_token',
+        on_delete=models.CASCADE, verbose_name=("User")
+    )
+    created = models.DateTimeField(("Created"), auto_now_add=True)
+
+    
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
 
 
     
