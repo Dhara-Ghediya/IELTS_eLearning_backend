@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
+from IELTS_eLearning_backend.settings import MEDIA_ROOT
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
@@ -127,7 +128,7 @@ class WritingTestsView(APIView):
             try:
                 image_url = None
                 if images is not None:
-                    image_folder = 'teacher_app/media/images/'
+                    image_folder = f"{MEDIA_ROOT}"
                     fs = FileSystemStorage(location=image_folder)
                     saved_image = fs.save(images.name, images)
                     image_url = fs.url(saved_image)

@@ -40,7 +40,6 @@ class LoginView(APIView):
             else:
                 return Response({'msg': 'Invalid credentials'}, status= 404)
         except Exception as e:
-            print('Error', e)
             return Response({'msg': 'You are not registered user!'}, status= 404)
 
 class Logout(APIView):
@@ -101,21 +100,24 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
-    @check_user_login
+    # @check_user_login
     def get(self, request, *args, **kwargs):
+        print("call")
         questions = []
         if WritingTests.objects.count() <= 2:
+            print("if condition")
             questions = WritingTests.objects.all()
         else:
-            questions = get_random_number_List(WritingTests, 1)         
+            print("else condition")
+            questions = get_random_number_List(WritingTests, 1)   
+            print("quesss")      
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
-        return Response(writingTestsSerializer.data)
+        print("data.....", writingTestsSerializer.data)
+        return Response(writingTestsSerializer.data, status=200)
     
     
     @check_user_login
     def post(self, request, *args, **kwargs):
-        print(request.data.get("username", ""))
-        print(request.session.get('student_user', "***"))
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
         if submitTest:
@@ -127,7 +129,7 @@ class WritingTestView(APIView):
                 writingTestSerializer.save()
                 return Response(writingTestSerializer.data)
             else:
-                return Response(writingTestSerializer.errors)
+                return Response({"details": writingTestSerializer.errors})
         return Response({"errors":"error while saving test. please try again"})
     
 class ReadingTestView(APIView):
@@ -138,7 +140,8 @@ class ReadingTestView(APIView):
         else:
             questions = get_random_number_List(ReadingTests, 1)         
         readingTestsSerializer = ReadingTestSerializer(questions, many=True)
-        return Response(readingTestsSerializer.data)
+        return Response(readingTestsSerializer.data, status=200)
+    
     def post(self, request, *args, **kwargs):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
@@ -168,8 +171,9 @@ class ListingTestView(APIView):
             questions = ListeningTests.objects.all()
         else:
             questions = get_random_number_List(ListeningTests, 1)   
-        leashingTestsSerializer = ListeningTestSerializer(questions, many=True,context={"request": request})
-        return Response(leashingTestsSerializer.data)
+        leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
+        return Response(leashingTestsSerializer.data, status=200)
+    
     def post(self, request, *args, **kwargs):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))
@@ -193,7 +197,7 @@ class SpeakingTestView(APIView):
         else:
             questions = get_random_number_List(SpeakingTests, 1)   
         speakingTestsSerializer = SpeakingTestSerializer(questions, many=True, context={"request": request})
-        return Response(speakingTestsSerializer.data)
+        return Response(speakingTestsSerializer.data, status=200)
     
     def post(self, request, *args, **kwargs):
         temp = dict(request.data)
@@ -213,8 +217,9 @@ class SpeakingTestView(APIView):
 def get_random_number_List(model, numberOfQuestions):
     List = []
     numberList = []
+    idList = [x.id for x in model.objects.all()]
     while len(List) < numberOfQuestions:
-            var = random.randint(1, model.objects.count())
+            var = random.choice(idList)
             if var not in numberList:
                 try:
                     List.append(model.objects.get(id = var))
