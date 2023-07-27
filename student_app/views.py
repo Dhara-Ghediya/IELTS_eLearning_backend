@@ -91,8 +91,6 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
-    
-    
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
