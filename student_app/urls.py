@@ -16,6 +16,8 @@ urlpatterns = [
     path('listing-test', views.ListingTestView.as_view(), name="listingTestView"),
     path('speaking-test', views.SpeakingTestView.as_view(), name="speakingTestView"),
     
+    path('student-myTests-writingTest', views.StudentWritingTestAnswersLists.as_view(), name="StudentWritingTestAnswersLists"),
+    
 ] 
 
 # router = DefaultRouter()

@@ -1,6 +1,6 @@
 from django.db import models
 from .validators import *
-from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
+from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator,MaxValueValidator,MinValueValidator
 from django.core.validators import FileExtensionValidator
 from rest_framework import exceptions
 import binascii
@@ -90,11 +90,11 @@ class ReadingTests(models.Model):
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
 
-    question1 = models.CharField(max_length=200)
-    question2 = models.CharField(max_length=200)
-    question3 = models.CharField(max_length=200)
-    question4 = models.CharField(max_length=200)
-    question5 = models.CharField(max_length=200)
+    question1 = models.CharField(max_length = 200)
+    question2 = models.CharField(max_length = 200)
+    question3 = models.CharField(max_length = 200)
+    question4 = models.CharField(max_length = 200)
+    question5 = models.CharField(max_length = 200)
 
     def __str__(self):
         return self.question

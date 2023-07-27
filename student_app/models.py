@@ -1,10 +1,11 @@
+from django.conf import settings
 from django.db import models
-from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator
+from django.core.validators import EmailValidator, MaxLengthValidator, MinLengthValidator, RegexValidator,MaxValueValidator,MinValueValidator
 from rest_framework.authtoken.models import Token
 from teacher_app.models import WritingTests,ReadingTests,ListeningTests,SpeakingTests
 import binascii
 import os
-
+from rest_framework.authtoken.models import Token
 
 class Permissions(models.Model):
     permissionName = models.CharField(verbose_name = "permission name", max_length = 180)
@@ -74,11 +75,13 @@ class StudentWritingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(WritingTests, verbose_name = "Question", on_delete = models.CASCADE)
     answer = models.TextField(verbose_name = "Answer from student")
+    timestamp = models.DateTimeField(auto_now_add = True)
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
     
 class StudentReadingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
     firstQuestionAnswer = models.TextField(verbose_name = "First Question Answer from student")
     secondQuestionAnswer = models.TextField(verbose_name = "Second Question Answer from student")
@@ -91,6 +94,7 @@ class StudentReadingAnswers(models.Model):
 class StudentListeningAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(ListeningTests, verbose_name = "Question",on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     answer = models.TextField(verbose_name = "student answer")
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
@@ -98,9 +102,33 @@ class StudentListeningAnswer(models.Model):
 class StudentSpeakingAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(SpeakingTests, verbose_name = "Question", on_delete = models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add = True)
     answer = models.FileField(verbose_name = "student Answer") 
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
+class UserTokens(models.Model):
+    """
+    The default authorization token model.
+    """
+    key = models.CharField(("Key"), max_length=40, primary_key=True)
+    user = models.OneToOneField(UserModel, related_name='auth_token',
+        on_delete=models.CASCADE, verbose_name=("User")
+    )
+    created = models.DateTimeField(("Created"), auto_now_add=True)
+
+    
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
 
 
     
