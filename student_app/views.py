@@ -94,12 +94,11 @@ class WritingTestView(APIView):
     def get(self, request, *args, **kwargs):
         questions = []
         if WritingTests.objects.count() <= 2:
-            print("if condition")
             questions = WritingTests.objects.all()
         else:
-            questions = get_random_number_List(WritingTests, 1)         
+            questions = get_random_number_List(WritingTests, 1)  
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
-        return Response(writingTestsSerializer.data)
+        return Response(writingTestsSerializer.data, status=200)
     
     
      
@@ -122,7 +121,7 @@ class WritingTestView(APIView):
                 return Response(writingTestSerializer.data)
             else:
                 return Response({"details": writingTestSerializer.errors})
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class ReadingTestView(APIView):
     
@@ -162,7 +161,7 @@ class ReadingTestView(APIView):
                 return Response(readingTestSerializer.data)
             else:
                 return Response(readingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 # class ReadingTestsView(viewsets.ModelViewSet):
 #     queryset = ReadingTests.objects.all()
@@ -200,7 +199,7 @@ class ListingTestView(APIView):
                 return Response(listingTestSerializer.data)
             else:
                 return Response(listingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class SpeakingTestView(APIView):
      
@@ -239,16 +238,7 @@ class SpeakingTestView(APIView):
             else:
                 return Response(speakingTestSerializer.errors)
         return Response({"errors":"error while saving test. please try again"})
-
-class StudentWritingTestAnswersLists(APIView):
-    def get(self, request, *args, **kwargs):
-        answerList=StudentListeningAnswer.objects.filter(testNumber__student__username=request.session.get('student_user', "***"))
-        print(request.session.get('student_user', "***"))
-        print(answerList)
-        serializer=WritingTestAnswerListSerializer(answerList,many=True)
-        return Response(serializer.data)
-# ----------------------------------------------------------------
-# return random test questions for test
+    
 def get_random_number_List(model, numberOfQuestions):
     List = []
     numberList = []
