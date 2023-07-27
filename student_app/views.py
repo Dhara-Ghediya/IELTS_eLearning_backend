@@ -30,8 +30,7 @@ class LoginView(APIView):
             else:
                 return Response({'msg': 'Invalid credentials'}, status= 404)
         except Exception as e:
-            print('Error', e)
-            return Response({'msg': 'You are not registered user &&&&!'}, status= 404)
+            return Response({'msg': 'You are not registered user!'}, status= 404)
 
 class Logout(APIView):
     # permission_classes = (IsAuthenticated, )
@@ -97,6 +96,7 @@ class WritingTestView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = []
         if WritingTests.objects.count() <= 2:
+            print("if condition")
             questions = WritingTests.objects.all()
         else:
             questions = get_random_number_List(WritingTests, 1)         
@@ -124,7 +124,7 @@ class WritingTestView(APIView):
                 writingTestSerializer.save()
                 return Response(writingTestSerializer.data)
             else:
-                return Response(writingTestSerializer.errors)
+                return Response({"details": writingTestSerializer.errors})
         return Response({"errors":"error while saving test. please try again"})
     
 class ReadingTestView(APIView):
@@ -140,8 +140,8 @@ class ReadingTestView(APIView):
         else:
             questions = get_random_number_List(ReadingTests, 1)         
         readingTestsSerializer = ReadingTestSerializer(questions, many=True)
-        return Response(readingTestsSerializer.data)
-     
+        return Response(readingTestsSerializer.data, status=200)
+    
     def post(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -182,10 +182,9 @@ class ListingTestView(APIView):
             questions = ListeningTests.objects.all()
         else:
             questions = get_random_number_List(ListeningTests, 1)   
-        leashingTestsSerializer = ListeningTestSerializer(questions, many=True,context={"request": request})
-        return Response(leashingTestsSerializer.data)
+        leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
+        return Response(leashingTestsSerializer.data, status=200)
     
-     
     def post(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -219,8 +218,8 @@ class SpeakingTestView(APIView):
             questions = SpeakingTests.objects.all()
         else:
             questions = get_random_number_List(SpeakingTests, 1)   
-        speakingTestsSerializer = SpeakingTestSerializer(questions, many = True, context = {"request": request})
-        return Response(speakingTestsSerializer.data)
+        speakingTestsSerializer = SpeakingTestSerializer(questions, many=True, context={"request": request})
+        return Response(speakingTestsSerializer.data, status=200)
     
      
     def post(self, request, *args, **kwargs):
@@ -262,8 +261,9 @@ class StudentWritingTestAnswersLists(APIView):
 def get_random_number_List(model, numberOfQuestions):
     List = []
     numberList = []
+    idList = [x.id for x in model.objects.all()]
     while len(List) < numberOfQuestions:
-            var = random.randint(1, model.objects.count())
+            var = random.choice(idList)
             if var not in numberList:
                 try:
                     List.append(model.objects.get(id = var))
