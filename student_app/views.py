@@ -100,19 +100,14 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
-    # @check_user_login
+    @check_user_login
     def get(self, request, *args, **kwargs):
-        print("call")
         questions = []
         if WritingTests.objects.count() <= 2:
-            print("if condition")
             questions = WritingTests.objects.all()
         else:
-            print("else condition")
-            questions = get_random_number_List(WritingTests, 1)   
-            print("quesss")      
+            questions = get_random_number_List(WritingTests, 1)  
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
-        print("data.....", writingTestsSerializer.data)
         return Response(writingTestsSerializer.data, status=200)
     
     
@@ -130,7 +125,7 @@ class WritingTestView(APIView):
                 return Response(writingTestSerializer.data)
             else:
                 return Response({"details": writingTestSerializer.errors})
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class ReadingTestView(APIView):
     def get(self, request, *args, **kwargs):
@@ -159,7 +154,7 @@ class ReadingTestView(APIView):
                 return Response(readingTestSerializer.data)
             else:
                 return Response(readingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 # class ReadingTestsView(viewsets.ModelViewSet):
 #     queryset = ReadingTests.objects.all()
@@ -187,7 +182,7 @@ class ListingTestView(APIView):
                 return Response(listingTestSerializer.data)
             else:
                 return Response(listingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class SpeakingTestView(APIView):
     def get(self, request, *args, **kwargs):
@@ -212,7 +207,7 @@ class SpeakingTestView(APIView):
                 return Response(speakingTestSerializer.data)
             else:
                 return Response(speakingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 def get_random_number_List(model, numberOfQuestions):
     List = []
