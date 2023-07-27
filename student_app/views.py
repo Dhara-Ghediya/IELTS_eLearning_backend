@@ -96,7 +96,6 @@ class WritingTestView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = []
         if WritingTests.objects.count() <= 2:
-            print("if condition")
             questions = WritingTests.objects.all()
         else:
             questions = get_random_number_List(WritingTests, 1)         
@@ -125,7 +124,7 @@ class WritingTestView(APIView):
                 return Response(writingTestSerializer.data)
             else:
                 return Response({"details": writingTestSerializer.errors})
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class ReadingTestView(APIView):
     
@@ -166,7 +165,7 @@ class ReadingTestView(APIView):
                 return Response(readingTestSerializer.data)
             else:
                 return Response(readingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 # class ReadingTestsView(viewsets.ModelViewSet):
 #     queryset = ReadingTests.objects.all()
@@ -205,7 +204,7 @@ class ListingTestView(APIView):
                 return Response(listingTestSerializer.data)
             else:
                 return Response(listingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
     
 class SpeakingTestView(APIView):
      
