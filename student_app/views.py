@@ -232,7 +232,7 @@ class SpeakingTestView(APIView):
                 return Response(speakingTestSerializer.data, status=201)
             else:
                 return Response(speakingTestSerializer.errors)
-        return Response({"errors":"error while saving test. please try again"})
+        return Response({"errors": "error while saving test. please try again"})
 
 class StudentWritingTestAnswersLists(APIView):
     def get(self, request, *args, **kwargs):
