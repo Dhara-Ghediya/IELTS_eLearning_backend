@@ -119,7 +119,7 @@ class WritingTestView(APIView):
             writingTestSerializer = StudentWritingAnswersSerializer(data = temp)
             if writingTestSerializer.is_valid():
                 writingTestSerializer.save()
-                return Response(writingTestSerializer.data)
+                return Response(writingTestSerializer.data, status=201)
             else:
                 return Response({"details": writingTestSerializer.errors})
         return Response({"errors": "error while saving test. please try again"})
