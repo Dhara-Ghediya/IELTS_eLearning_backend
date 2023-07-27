@@ -16,17 +16,6 @@ from teacher_app.models import WritingTests,ListeningTests
 # def home(request):
 #     return render(request, 'index.html')
  
-def check_user_login(view_func):
-    def _wrapped_view(request, *args, **kwargs):
-        print(request.request.session.keys())
-        if 'student_user' in request.request.session.keys():
-            
-            return view_func(request, *args, **kwargs)
-        else:
-            
-            return Response("login is required")
-        
-    return _wrapped_view
 
 class LoginView(APIView):
     def post(self, request):
@@ -53,7 +42,6 @@ class Logout(APIView):
 
 class RegisterView(APIView):
     def post(self, request):
-        print("Register View Started")
         user = UserModel.objects.filter(username = request.data['username'])
         # validation 
         if user.exists():
@@ -74,7 +62,6 @@ class RegisterView(APIView):
                 else:
                     reg_errors.append({'password': ["at least one digit", "at least one uppercase letter", "at least one lowercase letter", "at least one special character[$@#]"]})
                 if len(reg_errors)== 0:
-                    print("call...")
                     serializer = RegistrationSerializer(data= request.data, many= False)
                     if serializer.is_valid():
                         serializer
@@ -100,7 +87,6 @@ class ProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestView(APIView):
-    @check_user_login
     def get(self, request, *args, **kwargs):
         questions = []
         if WritingTests.objects.count() <= 2:
@@ -110,8 +96,6 @@ class WritingTestView(APIView):
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
         return Response(writingTestsSerializer.data, status=200)
     
-    
-    @check_user_login
     def post(self, request, *args, **kwargs):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = UserModel.objects.get(username = request.session.get('student_user', "***")))

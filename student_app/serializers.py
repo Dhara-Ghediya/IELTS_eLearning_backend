@@ -30,7 +30,7 @@ class ProfileSerializer (serializers.ModelSerializer):
         return super().is_valid(raise_exception=raise_exception)
     
     def save(self, **kwargs):
-        print(kwargs)
+        print("kwargs",kwargs)
         return super().save(**kwargs)
     
 class LoginSerializer(serializers.ModelSerializer):
