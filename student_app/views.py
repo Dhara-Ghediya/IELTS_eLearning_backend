@@ -237,8 +237,6 @@ class SpeakingTestView(APIView):
 class StudentWritingTestAnswersLists(APIView):
     def get(self, request, *args, **kwargs):
         answerList=StudentListeningAnswer.objects.filter(testNumber__student__username=request.session.get('student_user', "***"))
-        print(request.session.get('student_user', "***"))
-        print(answerList)
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
