@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from .models import *
 from .serializers import *
+from student_app.serializers import *
 from IELTS_eLearning_backend.settings import MEDIA_ROOT
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
@@ -42,9 +43,9 @@ class TeacherLoginView(APIView):
             user = TeacherModel.objects.filter(username = request.data['username']).first()
             # used to check encrypted password  
             if check_password(request.data['password'], user.password):
-                request.session['teacher_user'] = user.username
-                serializer = TeacherLoginSerializer(user)
-                return Response(serializer.data, status = 201)
+                token = TeacherTokens.objects.update_or_create(user = user)
+                serializer = {"username": user.username, "token": token[0].key}
+                return Response(serializer, status = 201)
             else:
                 return Response({'msg': 'Invalid credentials'}, status = 404)
         except Exception as e:
@@ -152,6 +153,9 @@ class TeacherProfileView(APIView):
 
 class WritingTestsView(APIView):
     def post(self, request):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         teacher = request.data.get('teacher')
         content = request.data.get('content', None)
         images = request.data.get('images', None)
@@ -189,6 +193,9 @@ class WritingTestsView(APIView):
 # to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
     def post(self, request):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         if ListeningTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
@@ -203,6 +210,9 @@ class ListeningTestsView(APIView):
 # to post questions of Speaking Test (only teacher can post questions)
 class SpeakingTestsView(APIView):
     def post(self, request):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         if SpeakingTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
@@ -216,6 +226,9 @@ class SpeakingTestsView(APIView):
 # to post questions of Reading Test (only teacher can post questions)            
 class ReadingTestsView(APIView):
     def post(self, request):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         if ReadingTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
@@ -228,6 +241,10 @@ class ReadingTestsView(APIView):
             
 class CheckWritingTestView(APIView):
     def get(self, request, *args, **kwargs):
+        
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questionId = request.data.get('question', None)
         if questionId is None:
             return Response({'msg': 'Question Id is missing in the request.'}, status = 400)
@@ -237,6 +254,9 @@ class CheckWritingTestView(APIView):
         
     def patch(self, request, *args, **kwargs):
         print(request.data)
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         data = dict(request.data)
         data['checkedQuestion']=True
         questionId = request.data.get('question', None)
@@ -252,7 +272,24 @@ class CheckWritingTestView(APIView):
 
 class QuestionsListView(APIView):
     def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questions = WritingTests.objects.filter(teacher=TeacherModel.objects.filter(username = request.session.get('teacher_user')).first())
         print(questions)
         serializer = WritingTestSerializer(questions, many=True)
         return Response(serializer.data, status = 201)
+    
+    
+# ----------------------------------------------------------------
+# Token authentication
+def token_auth(request):
+    print("headers:-",request.headers)
+    token = request.headers.get('token',None)
+    if token is None:
+        return False,"please provide a token"
+    try:
+        user = UserTokens.objects.get(key=token)
+        return True,user
+    except UserTokens.DoesNotExist:
+        return False,"token does not valid"
