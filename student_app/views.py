@@ -243,8 +243,6 @@ class StudentWritingTestAnswersLists(APIView):
             return Response({'msg': obj}, status= 404)
         answerList=StudentWritingAnswers.objects.filter(testNumber__student=obj.user)
         
-        print(request.session.get('student_user', "***"))
-        print(answerList)
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
