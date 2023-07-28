@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import *
-# from django.contrib.auth.models import
 
 # Register your models here.
 class UserAdmin(admin.ModelAdmin):
@@ -26,4 +25,3 @@ admin.site.register(StudentSpeakingAnswer)
 
 admin.site.register(Permissions)
 admin.site.register(MemberGroup)
-admin.site.register(UserTokens)
