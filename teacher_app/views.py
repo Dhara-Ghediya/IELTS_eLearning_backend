@@ -36,10 +36,13 @@ class TeacherLoginView(APIView):
             return Response({'msg': 'password is required'}, status = 404)
         try: 
             user = TeacherModel.objects.filter(username = request.data['username']).first()
-            # used to check encrypted password  
+            # used to check encrypted password 
+            print("1")
             if check_password(request.data['password'], user.password):
+                print("1")
                 token = TeacherTokens.objects.update_or_create(user = user)
                 serializer = {"username": user.username, "token": token[0].key}
+                print("2")
                 return Response(serializer, status = 201)
             else:
                 return Response({'msg': 'Invalid credentials'}, status = 404)

@@ -24,9 +24,10 @@ class LoginView(APIView):
             user = UserModel.objects.filter(username= request.data['username']).first()
             if check_password(request.data['password'], user.password):
                 # user = UserModel.objects.filter(username=request.data['username']).first()
-                request.session['student_user'] = user.username
-                serializer = LoginSerializer(user)
-                return Response(serializer.data, status= 201)
+                token = UserTokens.objects.update_or_create(user = user)
+                serializer = {"username": user.username, "token": token[0].key}
+                print("2")
+                return Response(serializer, status = 201)
             else:
                 return Response({'msg': 'Invalid credentials'}, status= 404)
         except Exception as e:
@@ -90,6 +91,9 @@ class ProfileView(APIView):
 class WritingTestView(APIView):
 
     def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questions = []
         if WritingTests.objects.count() <= 2:
             questions = WritingTests.objects.all()
@@ -120,6 +124,9 @@ class WritingTestView(APIView):
 class ReadingTestView(APIView):
     
     def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questions = []
         if ReadingTests.objects.count() <= 2:
             questions = ReadingTests.objects.all()
@@ -129,6 +136,9 @@ class ReadingTestView(APIView):
         return Response(readingTestsSerializer.data, status=200)
     
     def post(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
@@ -149,6 +159,9 @@ class ReadingTestView(APIView):
     
 class ListingTestView(APIView):
     def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questions = []
         if ListeningTests.objects.count() <= 2:
             questions = ListeningTests.objects.all()
@@ -161,6 +174,9 @@ class ListingTestView(APIView):
         return Response(leashingTestsSerializer.data, status=200)
     
     def post(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
@@ -177,6 +193,9 @@ class ListingTestView(APIView):
     
 class SpeakingTestView(APIView):
     def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         questions = []
         if SpeakingTests.objects.count() <= 2:
             questions = SpeakingTests.objects.all()
@@ -186,6 +205,9 @@ class SpeakingTestView(APIView):
         return Response(speakingTestsSerializer.data, status=200)
      
     def post(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
