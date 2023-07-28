@@ -110,7 +110,7 @@ class WritingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj)
+        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
             # check that come value form request is correct
             check, msg = check_value_validation(temp)
@@ -248,7 +248,11 @@ class SpeakingTestView(APIView):
 
 class StudentWritingTestAnswersLists(APIView):
     def get(self, request, *args, **kwargs):
-        answerList=StudentListeningAnswer.objects.filter(testNumber__student__username=request.session.get('student_user', "***"))
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        answerList=StudentWritingAnswers.objects.filter(testNumber__student=obj.user)
+        
         print(request.session.get('student_user', "***"))
         print(answerList)
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
@@ -279,6 +283,7 @@ def check_value_validation(dictValue):
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):
+    print("headers:-",request.headers)
     token = request.headers.get('token',None)
     if token is None:
         return False,"please provide a token"

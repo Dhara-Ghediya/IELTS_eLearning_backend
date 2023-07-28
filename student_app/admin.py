@@ -15,7 +15,11 @@ class StudentTestSubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'timestamp', 'student']
 admin.site.register(StudentTestSubmitModel, StudentTestSubmissionAdmin)
 
-admin.site.register(StudentWritingAnswers)
+class StudentWritingAnswersAdmin(admin.ModelAdmin):
+    list_display = ['id','get_name', 'timestamp', 'answer', 'checkedQuestion', 'studentObtainMarks']
+    def get_name(self, obj):
+        return obj.testNumber.student.username
+admin.site.register(StudentWritingAnswers,StudentWritingAnswersAdmin)
 admin.site.register(StudentReadingAnswers)
 admin.site.register(StudentListeningAnswer)
 admin.site.register(StudentSpeakingAnswer)
