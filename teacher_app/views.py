@@ -13,14 +13,9 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 from django.core.files.storage import FileSystemStorage
-# Create your views here.
-# def home(request):
-#     return render(request, 'index.html')
 
 def imagefile_validator(value):
-    print("value: ", value)
     # file_extension_validator = FileExtensionValidator(ALLOWED_EXTENSIONS_FOR_IMAGE)
-    # print(value)
     # file_extension_validator(value)
     if value.split('.')[-1] in ALLOWED_EXTENSIONS_FOR_IMAGE:
         return True
@@ -98,9 +93,7 @@ class TeacherRegisterView(APIView):
 # for teacher profile
 class TeacherProfileView(APIView):
     def post(self, request):
-        print("iin user...", request.data['user'])
         user = TeacherModel.objects.filter(id = request.data['user'])
-        print("user", user)
         if user.exists():
             serializer = TeacherProfileSerializer(data= request.data)
             if serializer.is_valid():
@@ -110,46 +103,6 @@ class TeacherProfileView(APIView):
                 return Response(serializer.errors)
         else:
             return Response ({'msg': 'You are not registered! Please register first.'})
-
-# to post questions of Writing Test (only teacher can post questions)
-# class WritingTestsView(APIView):
-#     def post(self, request):
-#         teacher = request.data.get('teacher')
-#         content = request.data.get('content', None)
-#         images = request.FILES.get('images', None)
-#         try:
-#             teacher = TeacherModel.objects.get(username=teacher).pk
-#         except Exception as e:
-#             return Response({'msg': 'User not found!'}, status = 404)
-#         if content is None:
-#             return Response({'msg': 'Content is missing in the request.'}, status = 400)
-#         if WritingTests.objects.filter(question=request.data['content']).exists():
-#             return Response({'msg': 'Question already exists!'}, status = 409)
-#         else:
-#             image_url = None
-#             try:
-#                 image_folder = 'teacher_app/media/images/'
-#                 fs = FileSystemStorage(location=image_folder)
-#                 saved_image = fs.save(images.name, images)
-#                 image_url = fs.url(saved_image)
-#             except Exception as e:
-#                 print("error....", e)
-#             try:
-#                 check= imagefile_validator(image_url)
-#                 if check:
-#                     question_data = {'content': content, 'images': image_url}
-#                     serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data})
-#                     if serializer.is_valid():
-#                         serializer.save()   
-#                         return Response({'msg': 'Question has been added Successfully!'}, status = 201)
-#                     else:
-#                         return Response(serializer.errors)
-#                 else:
-#                     return Response({'msg': 'Invalid Image Extention (only .png, .jpg, .jpeg, .webp allowed)!'}, status = 404)
-#             except Exception as e:
-#                 return Response({"error": e})
-            
-#         # return Response({'msg': "Question already exists!"}, status=404)
 
 class WritingTestsView(APIView):
     def post(self, request):
@@ -216,7 +169,10 @@ class SpeakingTestsView(APIView):
         if SpeakingTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            serializer = SpeakingTestSerializer(data=request.data)
+            data = dict(request.data)
+            data['teacher'] = obj.user.pk
+            data['question'] = data['question'][0]
+            serializer = SpeakingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
@@ -253,7 +209,6 @@ class CheckWritingTestView(APIView):
         return Response(serializer.data, status = 201)
         
     def patch(self, request, *args, **kwargs):
-        print(request.data)
         check, obj =token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
@@ -275,21 +230,18 @@ class QuestionsListView(APIView):
         check, obj =token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
-        questions = WritingTests.objects.filter(teacher=TeacherModel.objects.filter(username = request.session.get('teacher_user')).first())
-        print(questions)
+        questions = WritingTests.objects.filter(teacher=obj.user)
         serializer = WritingTestSerializer(questions, many=True)
         return Response(serializer.data, status = 201)
-    
     
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):
-    print("headers:-",request.headers)
     token = request.headers.get('token',None)
     if token is None:
         return False,"please provide a token"
     try:
-        user = UserTokens.objects.get(key=token)
+        user = TeacherTokens.objects.get(key=token)
         return True,user
-    except UserTokens.DoesNotExist:
+    except TeacherTokens.DoesNotExist:
         return False,"token does not valid"
