@@ -236,7 +236,10 @@ class QuestionsListView(APIView):
         questions = WritingTests.objects.filter(teacher=obj.user)
         serializer = WritingTestSerializer(questions, many=True)
         return Response(serializer.data, status = 201)
-    
+
+class myQuestions(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({"data":"ok"}, status = 200)
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):
