@@ -12,10 +12,6 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 from teacher_app.models import WritingTests,ListeningTests
-# Create your views here.
-# def home(request):
-#     return render(request, 'index.html')
-
 
 class LoginView(APIView):
 
@@ -131,7 +127,7 @@ class ReadingTestView(APIView):
         if ReadingTests.objects.count() <= 2:
             questions = ReadingTests.objects.all()
         else:
-            questions = get_random_number_List(ReadingTests, 1)         
+            questions = get_random_number_List(ReadingTests, 3)         
         readingTestsSerializer = ReadingTestSerializer(questions, many=True)
         return Response(readingTestsSerializer.data, status=200)
     
@@ -140,7 +136,7 @@ class ReadingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
+        submitTest = StudentTestSubmitModel.objects.create(student = obj.user)
         if submitTest:
             temp['testNumber'] = submitTest.id
             temp['question'] = int(temp['question'][0])
@@ -163,9 +159,6 @@ class ListingTestView(APIView):
             questions = ListeningTests.objects.all()
         else:
             questions = get_random_number_List(ListeningTests, 1)   
-        leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
-        return Response(leashingTestsSerializer.data, status=200)
-    
         leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
         return Response(leashingTestsSerializer.data, status=200)
     
@@ -255,7 +248,6 @@ def check_value_validation(dictValue):
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):
-    print("headers:-",request.headers)
     token = request.headers.get('token',None)
     if token is None:
         return False,"please provide a token"

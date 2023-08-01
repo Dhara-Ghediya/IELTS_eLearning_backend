@@ -78,18 +78,22 @@ class StudentWritingAnswers(models.Model):
     timestamp = models.DateTimeField(auto_now_add = True)
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
-    
-class StudentReadingAnswers(models.Model):
-    testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add = True)
-    question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
-    answer = models.JSONField()
-    checkedQuestion = models.BooleanField(default = False)
+
+class ReadingTestInfo(models.Model):
+    testID = models.ForeignKey(StudentTestSubmitModel, verbose_name = "test number that student submit", on_delete = models.CASCADE)
+    student = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    submitTime = models.DateTimeField(auto_now_add = True)
+    checkedTest = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
 
+class StudentReadingAnswers(models.Model):
+    testNumber = models.ForeignKey(ReadingTestInfo, verbose_name="Test Number", on_delete=models.CASCADE)
+    question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
+    answer = models.JSONField()
+
 class StudentListeningAnswer(models.Model):
-    testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
-    question = models.ForeignKey(ListeningTests, verbose_name = "Question",on_delete=models.CASCADE)
+    testNumber = models.ForeignKey(StudentTestSubmitModel, verbose_name = "test number that student submit", on_delete = models.CASCADE)
+    question = models.ForeignKey(ListeningTests, verbose_name = "Question", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add = True)
     answer = models.TextField(verbose_name = "student answer")
     checkedQuestion = models.BooleanField(default = False)
