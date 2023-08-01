@@ -83,11 +83,7 @@ class StudentReadingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add = True)
     question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
-    firstQuestionAnswer = models.TextField(verbose_name = "First Question Answer from student")
-    secondQuestionAnswer = models.TextField(verbose_name = "Second Question Answer from student")
-    thirdQuestionAnswer = models.TextField(verbose_name = "Third Question Answer from student")
-    fourthQuestionAnswer = models.TextField(verbose_name = "Fourth Question Answer from student")
-    fifthQuestionAnswer = models.TextField(verbose_name = "Fifth Question Answer from student")
+    answer = models.JSONField()
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)
 

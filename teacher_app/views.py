@@ -228,7 +228,7 @@ class CheckWritingTestView(APIView):
         else:
             return Response(serializer.errors)
 
-class QuestionsListView(APIView):
+class WritingQuestionsListView(APIView):
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -239,7 +239,12 @@ class QuestionsListView(APIView):
 
 class myQuestions(APIView):
     def get(self, request, *args, **kwargs):
-        return Response({"data":"ok"}, status = 200)
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questions = WritingTests.objects.filter(teacher = obj.user)
+        serializer = WritingTestSerializer(questions, many=True)
+        return Response(serializer.data, status = 201)
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):

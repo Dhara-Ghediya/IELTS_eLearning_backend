@@ -13,7 +13,7 @@ urlpatterns = [
     path('readingTests', views.ReadingTestsView.as_view(), name="reading_tests"),
     path('logout', views.TeacherLogout.as_view(), name="logout"),
     path('Check Writing TestView', views.CheckWritingTestView.as_view(), name="CheckWritingTestView"),
-    path('Questions List View', views.QuestionsListView.as_view(), name="QuestionsListView"),
+    path('WritingQuestionsListView', views.WritingQuestionsListView.as_view(), name="WritingQuestionsListView"),
     path('myQuestions',views.myQuestions.as_view(), name="myQuestions"),
     
 ] 

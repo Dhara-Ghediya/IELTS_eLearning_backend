@@ -57,7 +57,7 @@ class StudentReadingAnswersSerializer(serializers.ModelSerializer):
     # testNumber=StudentTestSubmitModelSerializer
     class Meta:
         model = StudentReadingAnswers
-        fields = ['testNumber', 'question', 'firstQuestionAnswer','secondQuestionAnswer','thirdQuestionAnswer','fourthQuestionAnswer','fifthQuestionAnswer','checkedQuestion','studentObtainMarks']
+        fields = ['testNumber', 'question', 'answer']
 
 
 class StudentListeningAnswersSerializer(serializers.ModelSerializer):

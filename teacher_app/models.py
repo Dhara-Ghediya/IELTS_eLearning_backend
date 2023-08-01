@@ -89,13 +89,8 @@ class ReadingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete = models.CASCADE)
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
-
-    question1 = models.CharField(max_length = 200)
-    question2 = models.CharField(max_length = 200)
-    question3 = models.CharField(max_length = 200)
-    question4 = models.CharField(max_length = 200)
-    question5 = models.CharField(max_length = 200)
-
+    subQuestion = models.JSONField()
+    
     def __str__(self):
         return self.question
     
