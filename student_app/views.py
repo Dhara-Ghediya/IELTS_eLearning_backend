@@ -94,7 +94,7 @@ class WritingTestView(APIView):
         if WritingTests.objects.count() <= 2:
             questions = WritingTests.objects.all()
         else:
-            questions = get_random_number_List(WritingTests, 2)  
+            questions = get_random_number_List(WritingTests, 1)  
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
         return Response(writingTestsSerializer.data, status=200)
     
@@ -106,9 +106,16 @@ class WritingTestView(APIView):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
+            print("testing... ", request.data)
             temp['testNumber'] = submitTest.id
-            temp['question'] = int(temp['question'][0])
-            temp['answer'] = temp['answer'][0]
+            print("testNumber: ", temp['testNumber'])
+            temp['question'] = temp['question'][0]
+            print("question: ", temp['question'])
+            temp['answer'] = {
+                "answer1": temp['answer1'][0],
+                "answer2": temp['answer2'][0]
+            }
+            print("answer: ", temp['answer'])
             writingTestSerializer = StudentWritingAnswersSerializer(data = temp)
             if writingTestSerializer.is_valid():
                 writingTestSerializer.save()

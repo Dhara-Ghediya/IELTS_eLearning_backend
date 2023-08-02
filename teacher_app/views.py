@@ -109,33 +109,47 @@ class TeacherProfileView(APIView):
 
 class WritingTestsView(APIView):
     def post(self, request):
-        check, obj =token_auth(request)
+        check, obj = token_auth(request)
         if not check:
+            print("done..")
             return Response({'msg': obj}, status= 404)
         teacher = request.data.get('teacher')
-        content = request.data.get('content', None)
-        images = request.data.get('images', None)
+        content1 = request.data.get('content1', None)
+        image = request.data.get('image', None)
+        content2 = request.data.get('content2', None)
         try:
             teacher = TeacherModel.objects.get(username=teacher).pk
         except TeacherModel.DoesNotExist:
             return Response({'msg': 'User not found!'}, status=404)
         
-        if content is None:
+        if content1 is None or content2 is None:
             return Response({'msg': 'Content is missing in the request.'}, status = 400)
         
-        if WritingTests.objects.filter(question=request.data['content']).exists():
-            return Response({'msg': 'Question already exists!'}, status = 409)  
+        # if WritingTests.objects.filter(question=request.data['content1']).exists() or :
+        #     return Response({'msg': 'Question already exists!'}, status = 409)  
         else:
             try:
+                print("try...")
                 image_url = None
-                if images is not None:
+                if image is not None:
+                    print("img is awailable")
                     image_folder = f"{MEDIA_ROOT}"
                     fs = FileSystemStorage(location=image_folder)
-                    saved_image = fs.save(images.name, images)
+                    saved_image = fs.save(image.name, image)
                     image_url = fs.url(saved_image)
                     if not imagefile_validator(image_url):
                         return Response({'msg': 'Invalid Image Extension (only .png, .jpg, .jpeg, .webp allowed)!'}, status=400)
-                question_data = {'content': content, 'images': image_url}
+                print("till now done")
+                question_data = {
+                    "question1": {
+                        'content1': content1, 
+                        'image': image_url
+                    },
+                    "question2":{
+                        'content2': content2,
+                    }
+                }
+                print("tyoe,..", type(question_data))
                 serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data})
                 if serializer.is_valid():
                     serializer.save()   

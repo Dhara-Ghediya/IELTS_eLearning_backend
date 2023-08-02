@@ -74,7 +74,7 @@ class StudentTestSubmitModel(models.Model):
 class StudentWritingAnswers(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel,verbose_name = "test number that student submit",on_delete = models.CASCADE)
     question = models.ForeignKey(WritingTests, verbose_name = "Question", on_delete = models.CASCADE)
-    answer = models.TextField(verbose_name = "Answer from student")
+    answer = models.JSONField()
     timestamp = models.DateTimeField(auto_now_add = True)
     checkedQuestion = models.BooleanField(default = False)
     studentObtainMarks = models.IntegerField(default = 0)

@@ -56,16 +56,16 @@ class WritingTests(models.Model):
     question = models.JSONField()
     
     def __str__(self):
-        return self.question.get('content', '')
+        return self.question.get('content1', '')
     
     def set_text_content(self, content):
-        self.question['content'] = content
+        self.question['content1'] = content
         self.save()
         
     def add_image(self, img_url):
-        if 'images' not in self.question:
-            self.question['images'] = []
-        self.question['images'].append(img_url)
+        if 'image' not in self.question:
+            self.question['image'] = []
+        self.question['image'].append(img_url)
         self.save()
 
 # model used to add (only teacher can add) questions for listeningTest
