@@ -189,14 +189,17 @@ class ReadingTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         if ReadingTests.objects.filter(question=request.data['question']).exists():
-            return Response({'msg': 'Question already exists!'}, status = 409)
+            return responseMSG('Question already exists!','warning',409)
         else:
-            serializer = ReadingTestSerializer(data=request.data)
+            data = dict(request.data)
+            data['teacher'] = obj.user.pk
+            data['question'] = data['question'][0]
+            serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'msg':'Question has been added Successfully!'}, status=201)
+                return responseMSG('Question has been added Successfully!','success',201)
             else:
-                return Response(serializer.errors)
+                return responseMSG(serializer.errors,'error',400)
             
 class CheckWritingTestView(APIView):
     def get(self, request, *args, **kwargs):
@@ -234,9 +237,43 @@ class WritingQuestionsListView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         questions = WritingTests.objects.filter(teacher=obj.user)
-        serializer = WritingTestSerializer(questions, many=True)
+        print((questions))
+        for i in questions:
+            print(i.question['images'])
+            if i.question['images'] is not None:
+                i.question['images'] ='http://'+ request.META['HTTP_HOST'] + i.question['images']
+        serializer = WritingTestSerializer(questions, many=True,context={"request": request})
         return Response(serializer.data, status = 201)
 
+class ListeningQuestionListView(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questions = ListeningTests.objects.filter(teacher=obj.user)
+        serializer = ListeningTestSerializer(questions, many=True,context={"request": request})
+        print(serializer.data)
+        return Response(serializer.data, status = 201)
+class ReadingQuestionListView(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questions = ReadingTests.objects.filter(teacher=obj.user)
+        serializer = ReadingTestSerializer(questions, many=True,context={"request": request})
+        print(serializer.data)
+        return Response(serializer.data, status = 201)
+    
+class SpeakingQuestionListView(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questions = SpeakingTests.objects.filter(teacher=obj.user)
+        serializer = SpeakingTestSerializer(questions, many=True,context={"request": request})
+        print(serializer.data)
+        return Response(serializer.data, status = 201)
+    
 class myQuestions(APIView):
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)
@@ -256,3 +293,6 @@ def token_auth(request):
         return True,user
     except TeacherTokens.DoesNotExist:
         return False,"token does not valid"
+    
+def responseMSG(msg,status,status_code):
+    return Response({'msg':msg, 'status':status}, status = status_code)
