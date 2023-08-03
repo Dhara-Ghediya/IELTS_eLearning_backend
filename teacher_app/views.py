@@ -193,7 +193,7 @@ class ReadingTestsView(APIView):
         else:
             data = dict(request.data)
             data['teacher'] = obj.user.pk
-            data['question'] = data['question'][0]
+            data['question'] = data['question']
             serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -237,11 +237,9 @@ class WritingQuestionsListView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         questions = WritingTests.objects.filter(teacher=obj.user)
-        print((questions))
         for i in questions:
-            print(i.question['images'])
-            if i.question['images'] is not None:
-                i.question['images'] ='http://'+ request.META['HTTP_HOST'] + i.question['images']
+            if i.question['question1']['image'] is not None:
+                i.question['question1']['image'] ='http://'+ request.META['HTTP_HOST'] + i.question['question1']['image']
         serializer = WritingTestSerializer(questions, many=True,context={"request": request})
         return Response(serializer.data, status = 201)
 
@@ -252,7 +250,6 @@ class ListeningQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = ListeningTests.objects.filter(teacher=obj.user)
         serializer = ListeningTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
 class ReadingQuestionListView(APIView):
     def get(self, request, *args, **kwargs):
@@ -261,7 +258,6 @@ class ReadingQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = ReadingTests.objects.filter(teacher=obj.user)
         serializer = ReadingTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
     
 class SpeakingQuestionListView(APIView):
@@ -271,7 +267,6 @@ class SpeakingQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = SpeakingTests.objects.filter(teacher=obj.user)
         serializer = SpeakingTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
     
 class myQuestions(APIView):
