@@ -111,7 +111,6 @@ class WritingTestsView(APIView):
     def post(self, request):
         check, obj = token_auth(request)
         if not check:
-            print("done..")
             return Response({'msg': obj}, status= 404)
         teacher = request.data.get('teacher')
         content1 = request.data.get('content1', None)
@@ -129,17 +128,14 @@ class WritingTestsView(APIView):
         #     return Response({'msg': 'Question already exists!'}, status = 409)  
         else:
             try:
-                print("try...")
                 image_url = None
                 if image is not None:
-                    print("img is awailable")
                     image_folder = f"{MEDIA_ROOT}"
                     fs = FileSystemStorage(location=image_folder)
                     saved_image = fs.save(image.name, image)
                     image_url = fs.url(saved_image)
                     if not imagefile_validator(image_url):
                         return Response({'msg': 'Invalid Image Extension (only .png, .jpg, .jpeg, .webp allowed)!'}, status=400)
-                print("till now done")
                 question_data = {
                     "question1": {
                         'content1': content1, 
@@ -149,7 +145,6 @@ class WritingTestsView(APIView):
                         'content2': content2,
                     }
                 }
-                print("tyoe,..", type(question_data))
                 serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data})
                 if serializer.is_valid():
                     serializer.save()   
