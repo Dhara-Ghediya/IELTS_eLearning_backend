@@ -145,6 +145,21 @@ class WritingTestsView(APIView):
             except Exception as e:
                 return Response({"error": str(e)}, status=500)
         # # return Response({'msg': "Question already exists!"}, status=404)
+    def delete(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        try:
+            print("w********************************")
+            print(request.data.get('question_id'))
+            question = WritingTests.objects.get(pk=request.data.get('question_id'))
+            if question.teacher == obj.user:
+                # question.delete()
+                return responseMSG('Question has been deleted Successfully!','success',201)
+            else:
+                return responseMSG("You are not authorized to delete this question!",'warning',401)
+        except WritingTests.DoesNotExist:
+            return responseMSG('Question does not exist!','error',404)
 
 # to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
@@ -162,6 +177,23 @@ class ListeningTestsView(APIView):
             else:
                 return Response(serializer.errors)
         # return Response({'msg': "Question already exists!"}, status=404)
+    
+    def delete(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        try:
+            print("********************************")
+            print(request.data.get('question_id'))
+            question = ListeningTests.objects.get(pk=request.data.get('question_id'))
+            if question.teacher == obj.user:
+                # question.delete()
+                return responseMSG('Question has been deleted Successfully!','success',201)
+            else:
+                return responseMSG("You are not authorized to delete this question!",'warning',401)
+        except ListeningTests.DoesNotExist:
+            return responseMSG('Question does not exist!','error',404)
+        return super().delete(request, *args, **kwargs)
 
 # to post questions of Speaking Test (only teacher can post questions)
 class SpeakingTestsView(APIView):
@@ -181,6 +213,22 @@ class SpeakingTestsView(APIView):
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
                 return Response(serializer.errors)
+    
+    def delete(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        try:
+            print("********************************")
+            print(request.data.get('question_id'))
+            question = SpeakingTests.objects.get(pk=request.data.get('question_id'))
+            if question.teacher == obj.user:
+                # question.delete()
+                return responseMSG('Question has been deleted Successfully!','success',201)
+            else:
+                return responseMSG("You are not authorized to delete this question!",'warning',401)
+        except SpeakingTests.DoesNotExist:
+            return responseMSG('Question does not exist!','error',404)
 
 # to post questions of Reading Test (only teacher can post questions)            
 class ReadingTestsView(APIView):
@@ -200,7 +248,26 @@ class ReadingTestsView(APIView):
                 return responseMSG('Question has been added Successfully!','success',201)
             else:
                 return responseMSG(serializer.errors,'error',400)
-            
+    
+    def delete(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        try:
+            print("reading  ********************************")
+            print(request.data.get('question_id'))
+            question = ReadingTests.objects.get(pk=request.data.get('question_id'))
+            print(question.teacher)
+            if question.teacher == obj.user:
+                # question.delete()
+                print("********************************")
+                return responseMSG('Question has been deleted Successfully!','success',201)
+            else:
+                return responseMSG("You are not authorized to delete this question!",'warning',401)
+        except ReadingTests.DoesNotExist:
+            return responseMSG('Question does not exist!','error',404)
+        
+          
 class CheckWritingTestView(APIView):
     def get(self, request, *args, **kwargs):
         
