@@ -14,7 +14,9 @@ urlpatterns = [
     path('logout', views.TeacherLogout.as_view(), name="logout"),
     path('Check Writing TestView', views.CheckWritingTestView.as_view(), name="CheckWritingTestView"),
     path('WritingQuestionsListView', views.WritingQuestionsListView.as_view(), name="WritingQuestionsListView"),
+    path('ListeningQuestionListView', views.ListeningQuestionListView.as_view(), name="ListeningQuestionListView"),
+    path('ReadingQuestionListView', views.ReadingQuestionListView.as_view(), name="ReadingQuestionListView"),
+    path('SpeakingQuestionListView', views.SpeakingQuestionListView.as_view(), name="SpeakingQuestionListView"),
     path('myQuestions',views.myQuestions.as_view(), name="myQuestions"),
-    
 ] 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
