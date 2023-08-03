@@ -109,33 +109,42 @@ class TeacherProfileView(APIView):
 
 class WritingTestsView(APIView):
     def post(self, request):
-        check, obj =token_auth(request)
+        check, obj = token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
         teacher = request.data.get('teacher')
-        content = request.data.get('content', None)
-        images = request.data.get('images', None)
+        content1 = request.data.get('content1', None)
+        image = request.data.get('image', None)
+        content2 = request.data.get('content2', None)
         try:
             teacher = TeacherModel.objects.get(username=teacher).pk
         except TeacherModel.DoesNotExist:
             return Response({'msg': 'User not found!'}, status=404)
         
-        if content is None:
+        if content1 is None or content2 is None:
             return Response({'msg': 'Content is missing in the request.'}, status = 400)
         
-        if WritingTests.objects.filter(question=request.data['content']).exists():
-            return Response({'msg': 'Question already exists!'}, status = 409)  
+        # if WritingTests.objects.filter(question=request.data['content1']).exists() or :
+        #     return Response({'msg': 'Question already exists!'}, status = 409)  
         else:
             try:
                 image_url = None
-                if images is not None:
+                if image is not None:
                     image_folder = f"{MEDIA_ROOT}"
                     fs = FileSystemStorage(location=image_folder)
-                    saved_image = fs.save(images.name, images)
+                    saved_image = fs.save(image.name, image)
                     image_url = fs.url(saved_image)
                     if not imagefile_validator(image_url):
                         return Response({'msg': 'Invalid Image Extension (only .png, .jpg, .jpeg, .webp allowed)!'}, status=400)
-                question_data = {'content': content, 'images': image_url}
+                question_data = {
+                    "question1": {
+                        'content1': content1, 
+                        'image': image_url
+                    },
+                    "question2":{
+                        'content2': content2,
+                    }
+                }
                 serializer = WritingTestSerializer(data={'teacher': teacher, 'question': question_data})
                 if serializer.is_valid():
                     serializer.save()   
@@ -241,7 +250,8 @@ class ReadingTestsView(APIView):
         else:
             data = dict(request.data)
             data['teacher'] = obj.user.pk
-            data['question'] = data['question'][0]
+            data['question'] = data['question']
+            print("amsa", data['rightAnswers'])
             serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -304,11 +314,9 @@ class WritingQuestionsListView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         questions = WritingTests.objects.filter(teacher=obj.user)
-        print((questions))
         for i in questions:
-            print(i.question['images'])
-            if i.question['images'] is not None:
-                i.question['images'] ='http://'+ request.META['HTTP_HOST'] + i.question['images']
+            if i.question['question1']['image'] is not None:
+                i.question['question1']['image'] ='http://'+ request.META['HTTP_HOST'] + i.question['question1']['image']
         serializer = WritingTestSerializer(questions, many=True,context={"request": request})
         return Response(serializer.data, status = 201)
 
@@ -319,7 +327,6 @@ class ListeningQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = ListeningTests.objects.filter(teacher=obj.user)
         serializer = ListeningTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
 class ReadingQuestionListView(APIView):
     def get(self, request, *args, **kwargs):
@@ -328,7 +335,6 @@ class ReadingQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = ReadingTests.objects.filter(teacher=obj.user)
         serializer = ReadingTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
     
 class SpeakingQuestionListView(APIView):
@@ -338,7 +344,6 @@ class SpeakingQuestionListView(APIView):
             return Response({'msg': obj}, status= 404)
         questions = SpeakingTests.objects.filter(teacher=obj.user)
         serializer = SpeakingTestSerializer(questions, many=True,context={"request": request})
-        print(serializer.data)
         return Response(serializer.data, status = 201)
     
 class myQuestions(APIView):

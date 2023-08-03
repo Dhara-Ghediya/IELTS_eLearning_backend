@@ -12,10 +12,6 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 from teacher_app.models import WritingTests,ListeningTests
-# Create your views here.
-# def home(request):
-#     return render(request, 'index.html')
-
 
 class LoginView(APIView):
 
@@ -98,7 +94,7 @@ class WritingTestView(APIView):
         if WritingTests.objects.count() <= 2:
             questions = WritingTests.objects.all()
         else:
-            questions = get_random_number_List(WritingTests, 2)  
+            questions = get_random_number_List(WritingTests, 1)  
         writingTestsSerializer = WritingTestSerializer(questions, many=True)
         return Response(writingTestsSerializer.data, status=200)
     
@@ -110,9 +106,16 @@ class WritingTestView(APIView):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
+            print("testing... ", request.data)
             temp['testNumber'] = submitTest.id
-            temp['question'] = int(temp['question'][0])
-            temp['answer'] = temp['answer'][0]
+            print("testNumber: ", temp['testNumber'])
+            temp['question'] = temp['question'][0]
+            print("question: ", temp['question'])
+            temp['answer'] = {
+                "answer1": temp['answer1'][0],
+                "answer2": temp['answer2'][0]
+            }
+            print("answer: ", temp['answer'])
             writingTestSerializer = StudentWritingAnswersSerializer(data = temp)
             if writingTestSerializer.is_valid():
                 writingTestSerializer.save()
@@ -131,7 +134,7 @@ class ReadingTestView(APIView):
         if ReadingTests.objects.count() <= 2:
             questions = ReadingTests.objects.all()
         else:
-            questions = get_random_number_List(ReadingTests, 1)         
+            questions = get_random_number_List(ReadingTests, 3)         
         readingTestsSerializer = ReadingTestSerializer(questions, many=True)
         return Response(readingTestsSerializer.data, status=200)
     
@@ -140,7 +143,7 @@ class ReadingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp = dict(request.data)
-        submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
+        submitTest = StudentTestSubmitModel.objects.create(student = obj.user)
         if submitTest:
             temp['testNumber'] = submitTest.id
             temp['question'] = int(temp['question'][0])
@@ -163,9 +166,6 @@ class ListingTestView(APIView):
             questions = ListeningTests.objects.all()
         else:
             questions = get_random_number_List(ListeningTests, 1)   
-        leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
-        return Response(leashingTestsSerializer.data, status=200)
-    
         leashingTestsSerializer = ListeningTestSerializer(questions, many=True, context={"request": request})
         return Response(leashingTestsSerializer.data, status=200)
     
@@ -228,6 +228,36 @@ class StudentWritingTestAnswersLists(APIView):
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
+# class StudentListeningTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentListeningAnswer.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=ListeningTestSerializer(answerList, many=True)
+#         return Response(serializer.data)
+    
+# class StudentSpeakingTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentSpeakingAnswer.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=SpeakingTestSerializer(answerList,many=True)
+#         return Response(serializer.data)
+    
+# class StudentReadingTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentReadingAnswers.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=StudentReadingAnswersSerializer(answerList,many=True)
+#         return Response(serializer.data)
+    
 # ----------------------------------------------------------------
 # return random test questions for test
 def get_random_number_List(model, numberOfQuestions):
@@ -255,7 +285,6 @@ def check_value_validation(dictValue):
 # ----------------------------------------------------------------
 # Token authentication
 def token_auth(request):
-    print("headers:-",request.headers)
     token = request.headers.get('token',None)
     if token is None:
         return False,"please provide a token"
