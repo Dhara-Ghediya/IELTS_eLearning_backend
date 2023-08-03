@@ -228,6 +228,36 @@ class StudentWritingTestAnswersLists(APIView):
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
+# class StudentListeningTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentListeningAnswer.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=ListeningTestSerializer(answerList, many=True)
+#         return Response(serializer.data)
+    
+# class StudentSpeakingTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentSpeakingAnswer.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=SpeakingTestSerializer(answerList,many=True)
+#         return Response(serializer.data)
+    
+# class StudentReadingTestAnswersLists(APIView):
+#     def get(self, request, *args, **kwargs):
+#         check, obj =token_auth(request)
+#         if not check:
+#             return Response({'msg': obj}, status= 404)
+#         answerList=StudentReadingAnswers.objects.filter(testNumber__student=obj.user)
+        
+#         serializer=StudentReadingAnswersSerializer(answerList,many=True)
+#         return Response(serializer.data)
+    
 # ----------------------------------------------------------------
 # return random test questions for test
 def get_random_number_List(model, numberOfQuestions):

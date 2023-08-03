@@ -48,7 +48,7 @@ class TeacherProfile(models.Model):
 #         ("reading", "Reading")
 #     )
 
-# model used to add (only teacher can add) questions for writingTest  
+# model used to add (only teacher can add) questions for writingTest  /
 class WritingTests(models.Model):
     teacher = models.ForeignKey(TeacherModel, on_delete=models.CASCADE)
     # que_type = models.CharField(max_length=50, choices=COURSES)
@@ -90,6 +90,7 @@ class ReadingTests(models.Model):
     question = models.TextField()
     timeStamp = models.DateTimeField(auto_now_add=True)
     subQuestion = models.JSONField()
+    rightAnswers = models.JSONField()
     
     def __str__(self):
         return self.question

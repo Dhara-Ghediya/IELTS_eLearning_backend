@@ -203,6 +203,7 @@ class ReadingTestsView(APIView):
             data = dict(request.data)
             data['teacher'] = obj.user.pk
             data['question'] = data['question']
+            print("amsa", data['rightAnswers'])
             serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
