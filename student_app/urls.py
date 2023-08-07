@@ -17,9 +17,9 @@ urlpatterns = [
     path('speaking-test', views.SpeakingTestView.as_view(), name="speakingTestView"),
     
     path('student-myTests-writingTest', views.StudentWritingTestAnswersLists.as_view(), name="StudentWritingTestAnswersLists"),
-    # path('student-myTests-readingTest', views.StudentReadingTestAnswersLists.as_view(), name="StudentReadingTestAnswersLists"),
-    # path('student-myTests-speakingTest', views.StudentReadingTestAnswersLists.as_view(), name="StudentReadingTestAnswersLists"),
-    # path('student-myTests-listingTest', views.StudentReadingTestAnswersLists.as_view(), name="StudentListingTestAnswersLists"),
+    path('student-myTests-readingTest', views.StudentReadingTestAnswersLists.as_view(), name="StudentReadingTestAnswersLists"),
+    path('student-myTests-speakingTest', views.StudentSpeakingTestAnswersLists.as_view(), name="StudentReadingTestAnswersLists"),
+    path('student-myTests-listeningTest', views.StudentListeningTestAnswersLists.as_view(), name="StudentListingTestAnswersLists"),
     
 ] 
 

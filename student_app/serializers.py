@@ -93,8 +93,44 @@ class WritingTestAnswerListSerializer(serializers.ModelSerializer):
     def get_teacher(self,obj):
         teacher=obj.question.teacher
         return {"username":teacher.username,"email":teacher.email}
+
+class ReadingTestAnswerListSerializer(serializers.ModelSerializer):
+    teacher=serializers.SerializerMethodField()
+    # typeOftest=serializers.SerializerMethodField()
+    class Meta:
+        model = StudentReadingAnswers
+        fields = '__all__'
+    
+    def get_teacher(self,obj):
+        teacher=obj.question.teacher
+        return {"username":teacher.username,"email":teacher.email}
     
     # def get_typeOftest(self,obj):
     #     typeOftest=obj.question.typeOftest
     #     return typeOftest.name
+
+class SpeakingTestAnswerListSerializer(serializers.ModelSerializer):
+    teacher=serializers.SerializerMethodField()
+    # typeOftest=serializers.SerializerMethodField()
+    class Meta:
+        model = StudentSpeakingAnswer
+        fields = '__all__'
     
+    def get_teacher(self,obj):
+        teacher=obj.question.teacher
+        return {"username":teacher.username,"email":teacher.email}
+    
+    # def get_typeOftest(self,obj):
+    #     typeOftest=obj.question.typeOftest
+    #     return typeOftest.name
+
+class ListeningTestAnswerListSerializer(serializers.ModelSerializer):
+    teacher=serializers.SerializerMethodField()
+    # typeOftest=serializers.SerializerMethodField()
+    class Meta:
+        model = StudentListeningAnswer
+        fields = '__all__'
+    
+    def get_teacher(self,obj):
+        teacher=obj.question.teacher
+        return {"username":teacher.username,"email":teacher.email}

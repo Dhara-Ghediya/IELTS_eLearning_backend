@@ -186,11 +186,18 @@ class ListeningTestsView(APIView):
         if ListeningTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            serializer = ListeningTestSerializer(data=request.data)
+            print(request.data)
+            data = dict(request.data)
+            data['teacher'] = obj.user.pk
+            data['question'] = data['question'][0]
+            print(type(data))
+            print(data)
+            serializer = ListeningTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
+                print(serializer.errors)
                 return Response(serializer.errors)
         # return Response({'msg': "Question already exists!"}, status=404)
     
