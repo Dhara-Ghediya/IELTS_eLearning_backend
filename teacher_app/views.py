@@ -37,12 +37,12 @@ class TeacherLoginView(APIView):
         try: 
             user = TeacherModel.objects.filter(username = request.data['username']).first()
             # used to check encrypted password 
-            print("1")
+            
             if check_password(request.data['password'], user.password):
-                print("1")
+                
                 token = TeacherTokens.objects.update_or_create(user = user)
                 serializer = {"username": user.username, "token": token[0].key}
-                print("2")
+                
                 return Response(serializer, status = 201)
             else:
                 return Response({'msg': 'Invalid credentials'}, status = 404)
@@ -96,9 +96,17 @@ class TeacherRegisterView(APIView):
 # for teacher profile
 class TeacherProfileView(APIView):
     def post(self, request):
-        user = TeacherModel.objects.filter(id = request.data['user'])
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        teacher = request.data.get('teacher')
+        user = TeacherModel.objects.filter(id = obj.user.pk)
         if user.exists():
-            serializer = TeacherProfileSerializer(data= request.data)
+            profile = TeacherProfile.objects.filter(user = user).first()
+            if profile.exists():
+                serializer = TeacherProfileSerializer(profile, data = request.data, partial=True)
+            else:
+                serializer = TeacherProfileSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg': "Your Profile has been saved!"}, status= 201)
@@ -159,11 +167,10 @@ class WritingTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         try:
-            print("w********************************")
-            print(request.data.get('question_id'))
+           
             question = WritingTests.objects.get(pk=request.data.get('question_id'))
             if question.teacher == obj.user:
-                # question.delete()
+                question.delete()
                 return responseMSG('Question has been deleted Successfully!','success',201)
             else:
                 return responseMSG("You are not authorized to delete this question!",'warning',401)
@@ -192,11 +199,10 @@ class ListeningTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         try:
-            print("********************************")
-            print(request.data.get('question_id'))
+            
             question = ListeningTests.objects.get(pk=request.data.get('question_id'))
             if question.teacher == obj.user:
-                # question.delete()
+                question.delete()
                 return responseMSG('Question has been deleted Successfully!','success',201)
             else:
                 return responseMSG("You are not authorized to delete this question!",'warning',401)
@@ -228,11 +234,10 @@ class SpeakingTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         try:
-            print("********************************")
-            print(request.data.get('question_id'))
+            
             question = SpeakingTests.objects.get(pk=request.data.get('question_id'))
             if question.teacher == obj.user:
-                # question.delete()
+                question.delete()
                 return responseMSG('Question has been deleted Successfully!','success',201)
             else:
                 return responseMSG("You are not authorized to delete this question!",'warning',401)
@@ -251,7 +256,6 @@ class ReadingTestsView(APIView):
             data = dict(request.data)
             data['teacher'] = obj.user.pk
             data['question'] = data['question']
-            print("amsa", data['rightAnswers'])
             serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -264,13 +268,9 @@ class ReadingTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         try:
-            print("reading  ********************************")
-            print(request.data.get('question_id'))
             question = ReadingTests.objects.get(pk=request.data.get('question_id'))
-            print(question.teacher)
             if question.teacher == obj.user:
-                # question.delete()
-                print("********************************")
+                question.delete()
                 return responseMSG('Question has been deleted Successfully!','success',201)
             else:
                 return responseMSG("You are not authorized to delete this question!",'warning',401)

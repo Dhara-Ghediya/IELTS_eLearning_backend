@@ -25,9 +25,9 @@ class LoginView(APIView):
                 print("2")
                 return Response(serializer, status = 201)
             else:
-                return Response({'msg': 'Invalid credentials'}, status= 404)
+                return Response({'msg': 'Invalid credentials','status':'warning'}, status= 404)
         except Exception as e:
-            return Response({'msg': 'You are not registered user!'}, status= 404)
+            return Response({'msg': 'You are not registered user!','status':'error'}, status= 404)
 
 class Logout(APIView):
     # permission_classes = (IsAuthenticated, )
@@ -83,6 +83,9 @@ class ProfileView(APIView):
                 return Response(serializer.errors)
         else:
             return Response ({'msg': 'You are not registered! Please register first.'})
+    def patch(self, request, *args, **kwargs):
+        
+        return super().patch(request, *args, **kwargs)
 
 class WritingTestView(APIView):
 
