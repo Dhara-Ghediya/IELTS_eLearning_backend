@@ -12,6 +12,8 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 from teacher_app.models import WritingTests,ListeningTests
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 class LoginView(APIView):
 
@@ -141,16 +143,36 @@ class ReadingTestView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         temp_data = list(request.data)
+        count = 1
         submitTest = StudentTestSubmitModel.objects.create(student = obj.user)
         readingQuesInfo = ReadingTestInfo.objects.create(testID = submitTest, student = obj.user)
         if submitTest:
-            count = 1
             data = dict()
             for temp in temp_data:
                 question_id = temp.pop(f'que_id{count}')
-                data ['answer'] = temp
-                data['testNumber'] = readingQuesInfo.pk
-                data['question'] = question_id
+                marks = {}
+                ############### check test by db ###########
+                ques_id = question_id
+                correct_data = ReadingTests.objects.get(id=ques_id)
+                correct_answers = correct_data.rightAnswers
+                for i, answer_dict in enumerate(correct_answers, start=1):
+                    correct_answer_key = f'ans{i}'
+                    student_answer_key = f'answer{i}'
+                    if correct_answer_key in answer_dict and student_answer_key in temp:
+                        correct_answer = answer_dict[correct_answer_key]
+                        student_answer = temp[student_answer_key]
+                        r = fuzz.ratio(correct_answer, student_answer)
+                        if r >= 70:
+                            marks[f"correct{i}"] = "True"
+                        else:
+                            marks[f"correct{i}"] = "False"
+                ############################################
+                data = {
+                    'answer': temp,
+                    'testNumber': readingQuesInfo.pk,
+                    'question': question_id,
+                    'obtainMarksPerQuestion': dict(marks),
+                }
                 readingTestSerializer = StudentReadingAnswersSerializer(data = data)
                 if readingTestSerializer.is_valid():
                     readingTestSerializer.save()
@@ -260,7 +282,6 @@ class StudentReadingTestAnswersLists(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         answerList=StudentReadingAnswers.objects.filter(testNumber__student=obj.user)
-        
         serializer=ReadingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
