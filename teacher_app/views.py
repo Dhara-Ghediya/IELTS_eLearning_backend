@@ -116,6 +116,22 @@ class TeacherProfileView(APIView):
             return Response ({'msg': 'You are not registered! Please register first.'})
 
 class WritingTestsView(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questionId = request.data.get('question')
+        if questionId:
+            try:
+                Question = WritingTests.objects.get(pk = questionId)
+                Question.question['question1']['image'] = 'http://'+ request.META['HTTP_HOST'] + Question.question['question1']['image']
+                serializer = WritingTestSerializer(Question)
+                return Response(serializer.data,status=201)
+            except Exception  as e:
+                return responseMSG('Question not found','error',404) 
+            
+        return responseMSG('please enter a question ID','error',500) 
+    
     def post(self, request):
         check, obj = token_auth(request)
         if not check:
@@ -162,6 +178,7 @@ class WritingTestsView(APIView):
             except Exception as e:
                 return Response({"error": str(e)}, status=500)
         # # return Response({'msg': "Question already exists!"}, status=404)
+    
     def delete(self, request, *args, **kwargs):
         check, obj =token_auth(request)
         if not check:
@@ -177,8 +194,63 @@ class WritingTestsView(APIView):
         except WritingTests.DoesNotExist:
             return responseMSG('Question does not exist!','error',404)
 
+    def patch(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        try:
+            questionId = request.data.get('id', None)
+            writingQuestion = WritingTests.objects.get(pk = questionId)
+            if writingQuestion.teacher == obj.user:
+                content1 = request.data.get('content1', None)
+                image = request.data.get('image', None)
+                content2 = request.data.get('content2', None)
+                image_url = None
+                if image is not None:
+                    image_folder = f"{MEDIA_ROOT}"
+                    fs = FileSystemStorage(location=image_folder)
+                    saved_image = fs.save(image.name, image)
+                    image_url = fs.url(saved_image)
+                    if not imagefile_validator(image_url):
+                        return Response({'msg': 'Invalid Image Extension (only .png, .jpg, .jpeg, .webp allowed)!'}, status=400)
+                else:
+                    image_url = writingQuestion.question['question1']['image']
+                question_data = {
+                    "question1": {
+                        'content1': content1, 
+                        'image': image_url
+                    },
+                    "question2":{
+                        'content2': content2,
+                    }
+                }
+                serializer = WritingTestSerializer(writingQuestion,data={'question': question_data},partial=True)
+                if serializer.is_valid():
+                    serializer.save()   
+                    return Response({'msg': 'Question has been added Successfully!'}, status=201)
+                else:
+                    return Response(serializer.errors, status=400)
+            else:
+                return Response({'msg': 'you are not authorized to edit this question','status':'error'}, status=500)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
 # to post questions of Listening Test (only teacher can post questions)
 class ListeningTestsView(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj = token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questionId = request.data.get('question')
+        if questionId:
+            try:
+                Question = ListeningTests.objects.get(pk = questionId)
+                serializer = ListeningTestSerializer(Question,context={"request": request})
+                return Response(serializer.data,status=201)
+            except Exception  as e:
+                return responseMSG('Question not found','error',404) 
+        return responseMSG('please enter a question ID','error',500) 
+    
     def post(self, request):
         check, obj =token_auth(request)
         if not check:
@@ -186,18 +258,14 @@ class ListeningTestsView(APIView):
         if ListeningTests.objects.filter(question=request.data['question']).exists():
             return Response({'msg': 'Question already exists!'}, status = 409)
         else:
-            print(request.data)
             data = dict(request.data)
             data['teacher'] = obj.user.pk
             data['question'] = data['question'][0]
-            print(type(data))
-            print(data)
             serializer = ListeningTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({'msg':'Question has been added Successfully!'}, status=201)
             else:
-                print(serializer.errors)
                 return Response(serializer.errors)
         # return Response({'msg': "Question already exists!"}, status=404)
     
@@ -216,6 +284,29 @@ class ListeningTestsView(APIView):
         except ListeningTests.DoesNotExist:
             return responseMSG('Question does not exist!','error',404)
         return super().delete(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        print("data",request.data)
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        questionId = request.data.get('questionId')
+        if questionId :
+            try:
+                question = ListeningTests.objects.get(pk = questionId)
+                if question.teacher == obj.user:
+                    serializer = ListeningTestSerializer(question,data=request.data,partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response({'msg': 'Question updated successfully','status':'success'}, status=201)
+                    else:
+                        return Response({'msg': 'Data is not valid','status':'success'}, status=500)
+                else:
+                    return Response({'msg': 'you are not authorized','status':'success'}, status=500) 
+            except Exception as e:
+                print(e)
+                return Response({'msg': 'question not found'}, status=404)
+        return Response({'msg': 'question not found'}, status=404)
 
 # to post questions of Speaking Test (only teacher can post questions)
 class SpeakingTestsView(APIView):
@@ -335,6 +426,7 @@ class ListeningQuestionListView(APIView):
         questions = ListeningTests.objects.filter(teacher=obj.user)
         serializer = ListeningTestSerializer(questions, many=True,context={"request": request})
         return Response(serializer.data, status = 201)
+
 class ReadingQuestionListView(APIView):
     def get(self, request, *args, **kwargs):
         check, obj =token_auth(request)

@@ -41,13 +41,17 @@ class WritingTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = WritingTests
         fields = "__all__"
-
+    
     ### to get id using username 
     # def __init__(self, instance=None, data=..., **kwargs):
     #     data = data.copy()
     #     data['teacher'] = TeacherModel.objects.filter(username=data['teacher']).first().pk
     #     super().__init__(instance, data, **kwargs)
-        
+    def update(self, instance, validated_data):
+        print("validdate data",validated_data)
+        # instance.question = validated_data.get('question')
+        return super().update(instance, validated_data)
+     
 class ListeningTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ListeningTests
