@@ -93,7 +93,7 @@ class ReadingTests(models.Model):
     rightAnswers = models.JSONField()
     
     def __str__(self):
-        return self.question
+        return self.question[0:15]
     
 class TeacherTokens(models.Model):
     """

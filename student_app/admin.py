@@ -23,5 +23,7 @@ admin.site.register(StudentReadingAnswers)
 admin.site.register(StudentListeningAnswer)
 admin.site.register(StudentSpeakingAnswer)
 
+admin.site.register(ReadingTestInfo)
+
 admin.site.register(Permissions)
 admin.site.register(MemberGroup)

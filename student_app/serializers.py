@@ -59,6 +59,10 @@ class StudentReadingAnswersSerializer(serializers.ModelSerializer):
         model = StudentReadingAnswers
         fields = ['testNumber', 'question', 'answer']
 
+class ReadingTestInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadingTestInfo
+        fields = ('submitTime', 'checkedTest', 'studentObtainMarks')
 
 class StudentListeningAnswersSerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,10 +97,17 @@ class WritingTestAnswerListSerializer(serializers.ModelSerializer):
     def get_teacher(self,obj):
         teacher=obj.question.teacher
         return {"username":teacher.username,"email":teacher.email}
+    
+class ReadingTestInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadingTestInfo
+        fields = '__all__'
 
 class ReadingTestAnswerListSerializer(serializers.ModelSerializer):
     teacher=serializers.SerializerMethodField()
-    # typeOftest=serializers.SerializerMethodField()
+    testNumber = ReadingTestInfoSerializer()
+    obtainMarksPerQuestion = serializers.DictField()
+
     class Meta:
         model = StudentReadingAnswers
         fields = '__all__'
@@ -105,10 +116,6 @@ class ReadingTestAnswerListSerializer(serializers.ModelSerializer):
         teacher=obj.question.teacher
         return {"username":teacher.username,"email":teacher.email}
     
-    # def get_typeOftest(self,obj):
-    #     typeOftest=obj.question.typeOftest
-    #     return typeOftest.name
-
 class SpeakingTestAnswerListSerializer(serializers.ModelSerializer):
     teacher=serializers.SerializerMethodField()
     # typeOftest=serializers.SerializerMethodField()
