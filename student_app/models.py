@@ -90,6 +90,7 @@ class StudentReadingAnswers(models.Model):
     testNumber = models.ForeignKey(ReadingTestInfo, verbose_name="Test Number", on_delete=models.CASCADE)
     question = models.ForeignKey(ReadingTests, verbose_name = "Question", on_delete = models.CASCADE)
     answer = models.JSONField()
+    obtainMarksPerQuestion = models.JSONField(default=dict)
 
 class StudentListeningAnswer(models.Model):
     testNumber = models.ForeignKey(StudentTestSubmitModel, verbose_name = "test number that student submit", on_delete = models.CASCADE)

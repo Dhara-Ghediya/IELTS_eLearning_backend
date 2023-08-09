@@ -12,6 +12,8 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 from teacher_app.models import WritingTests,ListeningTests
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 class LoginView(APIView):
 
@@ -109,16 +111,12 @@ class WritingTestView(APIView):
         temp = dict(request.data)
         submitTest, _ = StudentTestSubmitModel.objects.get_or_create(student = obj.user)
         if submitTest:
-            print("testing... ", request.data)
             temp['testNumber'] = submitTest.id
-            print("testNumber: ", temp['testNumber'])
             temp['question'] = temp['question'][0]
-            print("question: ", temp['question'])
             temp['answer'] = {
                 "answer1": temp['answer1'][0],
                 "answer2": temp['answer2'][0]
             }
-            print("answer: ", temp['answer'])
             writingTestSerializer = StudentWritingAnswersSerializer(data = temp)
             if writingTestSerializer.is_valid():
                 writingTestSerializer.save()
@@ -128,7 +126,6 @@ class WritingTestView(APIView):
         return Response({"errors": "error while saving test. please try again"})
     
 class ReadingTestView(APIView):
-    
     def get(self, request, *args, **kwargs):
         check, obj = token_auth(request)
         if not check:
@@ -145,19 +142,47 @@ class ReadingTestView(APIView):
         check, obj = token_auth(request)
         if not check:
             return Response({'msg': obj}, status= 404)
-        temp = dict(request.data)
+        temp_data = list(request.data)
+        count = 1
         submitTest = StudentTestSubmitModel.objects.create(student = obj.user)
+        readingQuesInfo = ReadingTestInfo.objects.create(testID = submitTest, student = obj.user)
         if submitTest:
-            temp['testNumber'] = submitTest.id
-            temp['question'] = int(temp['question'][0])
-            temp['answer'] = temp['answer'][0]
-            readingTestSerializer = StudentReadingAnswersSerializer(data = temp)
-            if readingTestSerializer.is_valid():
-                readingTestSerializer.save()
-                return Response(readingTestSerializer.data, status=201)
-            else:
-                return Response(readingTestSerializer.errors)
-        return Response({"errors": "error while saving test. please try again"})
+            data = dict()
+            for temp in temp_data:
+                question_id = temp.pop(f'que_id{count}')
+                marks = {}
+                ############### check test by db ###########
+                ques_id = question_id
+                correct_data = ReadingTests.objects.get(id=ques_id)
+                correct_answers = correct_data.rightAnswers
+                for i, answer_dict in enumerate(correct_answers, start=1):
+                    correct_answer_key = f'ans{i}'
+                    student_answer_key = f'answer{i}'
+                    if correct_answer_key in answer_dict and student_answer_key in temp:
+                        correct_answer = answer_dict[correct_answer_key]
+                        student_answer = temp[student_answer_key]
+                        r = fuzz.ratio(correct_answer, student_answer)
+                        if r >= 70:
+                            marks[f"correct{i}"] = "True"
+                        else:
+                            marks[f"correct{i}"] = "False"
+                ############################################
+                data = {
+                    'answer': temp,
+                    'testNumber': readingQuesInfo.pk,
+                    'question': question_id,
+                    'obtainMarksPerQuestion': dict(marks),
+                }
+                readingTestSerializer = StudentReadingAnswersSerializer(data = data)
+                if readingTestSerializer.is_valid():
+                    readingTestSerializer.save()
+                    count+=1
+                else:
+                    print("error", readingTestSerializer.errors)
+            return Response(readingTestSerializer.data, status=201)
+        else:
+            return Response(readingTestSerializer.errors)
+        # return Response({"errors": "error while saving test. please try again"})
     
 class ListingTestView(APIView):
     def get(self, request, *args, **kwargs):
@@ -231,35 +256,34 @@ class StudentWritingTestAnswersLists(APIView):
         serializer=WritingTestAnswerListSerializer(answerList,many=True)
         return Response(serializer.data)
     
-# class StudentListeningTestAnswersLists(APIView):
-#     def get(self, request, *args, **kwargs):
-#         check, obj =token_auth(request)
-#         if not check:
-#             return Response({'msg': obj}, status= 404)
-#         answerList=StudentListeningAnswer.objects.filter(testNumber__student=obj.user)
+class StudentListeningTestAnswersLists(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        answerList=StudentListeningAnswer.objects.filter(testNumber__student=obj.user)
         
-#         serializer=ListeningTestSerializer(answerList, many=True)
-#         return Response(serializer.data)
+        serializer=ListeningTestAnswerListSerializer(answerList, many=True)
+        return Response(serializer.data)
     
-# class StudentSpeakingTestAnswersLists(APIView):
-#     def get(self, request, *args, **kwargs):
-#         check, obj =token_auth(request)
-#         if not check:
-#             return Response({'msg': obj}, status= 404)
-#         answerList=StudentSpeakingAnswer.objects.filter(testNumber__student=obj.user)
+class StudentSpeakingTestAnswersLists(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        answerList=StudentSpeakingAnswer.objects.filter(testNumber__student=obj.user)
         
-#         serializer=SpeakingTestSerializer(answerList,many=True)
-#         return Response(serializer.data)
+        serializer=SpeakingTestAnswerListSerializer(answerList,many=True)
+        return Response(serializer.data)
     
-# class StudentReadingTestAnswersLists(APIView):
-#     def get(self, request, *args, **kwargs):
-#         check, obj =token_auth(request)
-#         if not check:
-#             return Response({'msg': obj}, status= 404)
-#         answerList=StudentReadingAnswers.objects.filter(testNumber__student=obj.user)
-        
-#         serializer=StudentReadingAnswersSerializer(answerList,many=True)
-#         return Response(serializer.data)
+class StudentReadingTestAnswersLists(APIView):
+    def get(self, request, *args, **kwargs):
+        check, obj =token_auth(request)
+        if not check:
+            return Response({'msg': obj}, status= 404)
+        answerList=StudentReadingAnswers.objects.filter(testNumber__student=obj.user)
+        serializer=ReadingTestAnswerListSerializer(answerList,many=True)
+        return Response(serializer.data)
     
 # ----------------------------------------------------------------
 # return random test questions for test
