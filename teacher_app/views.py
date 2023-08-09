@@ -258,11 +258,16 @@ class ReadingTestsView(APIView):
         if not check:
             return Response({'msg': obj}, status= 404)
         if ReadingTests.objects.filter(question=request.data['question']).exists():
+            print("obj...", request.data['question'])
             return responseMSG('Question already exists!','warning',409)
         else:
             data = dict(request.data)
-            data['teacher'] = obj.user.pk
-            data['question'] = data['question']
+            data = {
+                'teacher': obj.user.pk, 
+                'question': data['question'],
+                'subQuestion': data['subQuestion'], 
+                'rightAnswers': data['rightAnswers']
+            }
             serializer = ReadingTestSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
